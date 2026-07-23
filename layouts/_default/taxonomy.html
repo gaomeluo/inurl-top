@@ -1,13 +1,14 @@
 {{ define "main" }}
-<section class="list">
-  <h1>{{ .Title }}</h1>
-  <ul class="post-list">
+<section class="list-page reveal">
+  <h1 class="page-title">{{ .Title }}</h1>
+  <p class="page-sub">共 {{ .Data.Terms.Alphabetical | len }} 个分类</p>
+  <div class="cat-grid">
     {{ range .Data.Terms.Alphabetical }}
-    <li>
-      <a href="{{ .Page.RelPermalink }}">{{ .Page.Title }}</a>
-      <span class="post-meta">{{ .Count }}</span>
-    </li>
+    <a class="cat-card magnetic" href="{{ .Page.RelPermalink }}">
+      <span class="cat-name">{{ .Page.Title }}</span>
+      <span class="cat-count">{{ .Count }} 篇</span>
+    </a>
     {{ end }}
-  </ul>
+  </div>
 </section>
 {{ end }}

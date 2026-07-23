@@ -1,15 +1,18 @@
 {{ define "main" }}
-<section class="list">
-  <h1>{{ .Title }}</h1>
-  <p class="post-meta">分类归档 · 共 {{ len .Pages }} 篇</p>
-  <ul class="post-list">
-    {{ range .Pages }}
-    <li>
-      <a href="{{ .RelPermalink }}">{{ .Title }}</a>
-      <time>{{ .Date.Format "2006-01-02" }}</time>
-    </li>
+{{ $pag := .Paginate (.Pages.ByDate.Reverse) }}
+<section class="list-page reveal">
+  <h1 class="page-title">{{ .Title }}</h1>
+  <p class="page-sub">分类归档 · 共 {{ len .Pages }} 篇</p>
+  <div class="post-grid">
+    {{ range $pag.Pages }}
+    <article class="post-card magnetic reveal">
+      <a class="card-link" href="{{ .RelPermalink }}">
+        <h3 class="card-title">{{ .Title }}</h3>
+        <time class="card-date">{{ .Date.Format "2006-01-02" }}</time>
+      </a>
+    </article>
     {{ end }}
-  </ul>
+  </div>
   {{ template "_internal/pagination.html" . }}
 </section>
 {{ end }}

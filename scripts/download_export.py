@@ -8,7 +8,7 @@
 用法（在已装 paramiko 的 venv 里）：
   INURL_HOST=167.179.111.144 INURL_PORT=22 INURL_USER=root \
   INURL_PASS='<ssh_root密码>' \
-  INURL_DB_USER=inurltop INURL_DB_PASS='gaomeluo168' \
+  INURL_DB_USER=inurltop INURL_DB_PASS='<数据库密码>' \
   INURL_DB_NAME=inurltop INURL_DB_HOST=localhost INURL_DB_PORT=3306 \
   INURL_WD=/www/wwwroot/inurltop \
   python scripts/download_export.py

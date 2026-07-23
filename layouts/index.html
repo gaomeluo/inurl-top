@@ -1,14 +1,34 @@
 {{ define "main" }}
-<section class="home">
-  <h1 class="home-title">{{ .Site.Title }}</h1>
-  {{ with .Site.Params.description }}<p class="home-desc">{{ . }}</p>{{ end }}
-  <ul class="post-list">
-    {{ range where .Site.RegularPages "Section" "posts" }}
-    <li>
-      <a href="{{ .RelPermalink }}">{{ .Title }}</a>
-      <time>{{ .Date.Format "2006-01-02" }}</time>
-    </li>
+{{ $posts := where .Site.RegularPages "Section" "posts" }}
+{{ $posts = $posts.ByDate.Reverse }}
+{{ $pag := .Paginate $posts }}
+<section class="hero reveal">
+  <p class="hero-eyebrow">BLOG · 顶级索引</p>
+  <h1 class="hero-title">{{ .Site.Title }}</h1>
+  {{ with .Site.Params.description }}<p class="hero-desc">{{ . }}</p>{{ end }}
+  <div class="hero-actions">
+    <a class="btn btn-primary magnetic" href="#posts">浏览文章</a>
+    <a class="btn btn-ghost magnetic" href="{{ "index.xml" | absURL }}">RSS 订阅</a>
+  </div>
+</section>
+
+<section id="posts" class="posts">
+  <div class="section-head reveal">
+    <h2>最新文章</h2>
+    <span class="count">{{ len $posts }} 篇</span>
+  </div>
+  <div class="post-grid">
+    {{ range $pag.Pages }}
+    <article class="post-card reveal magnetic">
+      <a class="card-link" href="{{ .RelPermalink }}">
+        {{ with .GetTerms "categories" }}<span class="chip">{{ (index . 0).Title }}</span>{{ end }}
+        <h3 class="card-title">{{ .Title }}</h3>
+        <p class="card-excerpt">{{ .Summary | plainify | truncate 90 }}</p>
+        <time class="card-date">{{ .Date.Format "2006-01-02" }}</time>
+      </a>
+    </article>
     {{ end }}
-  </ul>
+  </div>
+  {{ template "_internal/pagination.html" . }}
 </section>
 {{ end }}

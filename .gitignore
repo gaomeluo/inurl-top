@@ -6,3 +6,6 @@
 _server_export/
 # Hugo 本地二进制（如本地校验用）
 /.hugo/
+
+# 工作区记忆（迁移笔记/凭据提示），不进公开仓库
+.workbuddy/
