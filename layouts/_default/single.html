@@ -1,19 +1,13 @@
 {{ define "main" }}
-<article class="post-article reveal">
-  <header class="article-head">
-    {{ with .GetTerms "categories" }}<div class="crumbs">{{ range . }}<a href="{{ .RelPermalink }}">{{ .Title }}</a>{{ end }}</div>{{ end }}
-    <h1>{{ .Title }}</h1>
-    <p class="article-meta">
-      <time>{{ .Date.Format "2006-01-02" }}</time>
-      {{ with .Params.description }}<span> · {{ . }}</span>{{ end }}
-    </p>
-  </header>
-  <div class="article-body">
+<article class="post">
+  <h1 class="post-title-single">{{ .Title }}</h1>
+  <div class="post-meta">
+    <time>{{ .Date.Format "2006-01-02" }}</time>
+    {{ with .GetTerms "categories" }}<span class="dot">·</span>{{ range . }}<a href="{{ .RelPermalink }}">{{ .Title }}</a>{{ end }}{{ end }}
+  </div>
+  <div class="post-content">
     {{ .Content }}
   </div>
-  {{ with .GetTerms "categories" }}<footer class="article-foot">
-    <span>分类：</span>
-    {{ range . }}<a class="chip" href="{{ .RelPermalink }}">{{ .Title }}</a>{{ end }}
-  </footer>{{ end }}
+  {{ with .GetTerms "categories" }}<div class="post-tags"><span>分类：</span>{{ range . }}<a class="chip" href="{{ .RelPermalink }}">{{ .Title }}</a>{{ end }}</div>{{ end }}
 </article>
 {{ end }}

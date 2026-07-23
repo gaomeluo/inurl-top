@@ -3,34 +3,26 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} · {{ .Site.Title }}{{ end }}</title>
+  <title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} - {{ .Site.Title }}{{ end }}</title>
   {{ with .Site.Params.description }}<meta name="description" content="{{ . }}">{{ end }}
-  <meta name="color-scheme" content="light dark">
-  <meta name="theme-color" content="#7c5cff">
+  <meta name="theme-color" content="#007fff">
   <link rel="stylesheet" href="{{ "css/style.css" | relURL }}">
   <link rel="alternate" type="application/rss+xml" href="{{ "index.xml" | absURL }}" title="{{ .Site.Title }}">
-  <script>
-    (function () {
-      try {
-        var t = localStorage.getItem("theme");
-        if (t === "light" || t === "dark") {
-          document.documentElement.setAttribute("data-theme", t);
-        }
-        document.documentElement.classList.add("js");
-      } catch (e) {}
-    })();
-  </script>
 </head>
 <body>
-  <div class="reading-progress" aria-hidden="true"></div>
-  <div class="aurora" aria-hidden="true"></div>
-
   <header class="site-header">
-    <a class="brand" href="{{ .Site.BaseURL }}">{{ .Site.Title }}</a>
-    <nav class="site-nav">
-      {{ range .Site.Menus.main }}<a href="{{ .URL }}">{{ .Name }}</a>{{ end }}
-      <button id="theme-toggle" class="theme-toggle magnetic" type="button" aria-label="切换主题" title="切换主题">🌗</button>
-    </nav>
+    <div class="container">
+      <a class="site-logo" href="/">{{ .Site.Title }}</a>
+      <nav class="site-nav">
+        <a class="nav-link{{ if .IsHome }} current{{ end }}" href="/">首页</a>
+        {{ range .Site.Taxonomies.categories.Alphabetical }}
+          <a class="nav-link" href="{{ .Page.RelPermalink }}">{{ .Page.Title }}</a>
+        {{ end }}
+        {{ range where .Site.RegularPages "Section" "pages" }}
+          <a class="nav-link" href="{{ .RelPermalink }}">{{ .Title }}</a>
+        {{ end }}
+      </nav>
+    </div>
   </header>
 
   <main class="container">
@@ -40,93 +32,5 @@
   <footer class="site-footer">
     <p>© {{ now.Year }} {{ .Site.Title }} · 由 <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a> 驱动 · 托管于 Cloudflare Pages</p>
   </footer>
-
-  <script>
-    (function () {
-      var root = document.documentElement;
-      var KEY = "theme";
-      var order = ["light", "dark", "system"];
-      var icons = { light: "☀️", dark: "🌙", system: "🖥️" };
-
-      function apply(t) {
-        if (t === "system") {
-          root.removeAttribute("data-theme");
-        } else {
-          root.setAttribute("data-theme", t);
-        }
-        var btn = document.getElementById("theme-toggle");
-        if (btn) {
-          btn.textContent = icons[t] || "🌗";
-          var label = t === "system" ? "跟随系统" : (t === "dark" ? "深色" : "浅色");
-          btn.setAttribute("aria-label", "主题：" + label);
-          btn.title = "主题：" + label;
-        }
-      }
-
-      var saved = "system";
-      try {
-        var s = localStorage.getItem(KEY);
-        if (s && order.indexOf(s) >= 0) saved = s;
-      } catch (e) {}
-      apply(saved);
-
-      var btn = document.getElementById("theme-toggle");
-      if (btn) {
-        btn.addEventListener("click", function () {
-          var i = order.indexOf(saved);
-          saved = order[(i + 1) % order.length];
-          try { localStorage.setItem(KEY, saved); } catch (e) {}
-          apply(saved);
-        });
-      }
-
-      var rm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-      /* 滚动渐入 */
-      var revealEls = document.querySelectorAll(".reveal");
-      if (rm || !("IntersectionObserver" in window)) {
-        revealEls.forEach(function (e) { e.classList.add("is-visible"); });
-      } else {
-        var io = new IntersectionObserver(function (entries) {
-          entries.forEach(function (en) {
-            if (en.isIntersecting) {
-              en.target.classList.add("is-visible");
-              io.unobserve(en.target);
-            }
-          });
-        }, { threshold: 0.08, rootMargin: "0px 0px -40px 0px" });
-        revealEls.forEach(function (e) { io.observe(e); });
-      }
-
-      /* 磁性悬停 */
-      if (!rm) {
-        document.querySelectorAll(".magnetic").forEach(function (el) {
-          el.addEventListener("mousemove", function (e) {
-            var r = el.getBoundingClientRect();
-            var mx = e.clientX - r.left - r.width / 2;
-            var my = e.clientY - r.top - r.height / 2;
-            el.style.transform =
-              "translate(" + (mx * 0.12) + "px," + (my * 0.18) + "px)";
-          });
-          el.addEventListener("mouseleave", function () {
-            el.style.transform = "";
-          });
-        });
-      }
-
-      /* 阅读进度条 */
-      var bar = document.querySelector(".reading-progress");
-      if (bar && document.querySelector(".post-article")) {
-        var upd = function () {
-          var h = document.documentElement;
-          var sc = h.scrollTop || document.body.scrollTop;
-          var max = h.scrollHeight - h.clientHeight;
-          bar.style.width = (max > 0 ? (sc / max) * 100 : 0) + "%";
-        };
-        window.addEventListener("scroll", upd, { passive: true });
-        upd();
-      }
-    })();
-  </script>
 </body>
 </html>
