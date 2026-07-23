@@ -5,8 +5,9 @@
 # ============================================
 
 # ---- 媒体（图片）存放：对齐原 Typecho 的 usr/uploads ----
-# input  = 仓库内目录；output = 对外访问 URL 前缀
+# name 供正文富文本/图片按钮引用；input = 仓库内目录；output = 对外访问 URL 前缀
 media:
+  name: uploads
   input: static/usr/uploads
   output: /usr/uploads
   extensions: [png, jpg, jpeg, gif, webp, svg]
@@ -25,14 +26,30 @@ content:
     fields:
       - { name: title, label: 标题, type: string, required: true }
       - { name: slug, label: 固定链接(slug), type: string, required: true }
-      # 日期带时区 +08:00，format 用 xxx 才能正确解析
+      # 日期格式对齐仓库内现有数据（无时区）
       - { name: date, label: 日期, type: date, options: { format: yyyy-MM-dd'T'HH:mm:ss, time: true } }
       - { name: draft, label: 草稿, type: boolean, default: true }
       - { name: description, label: 摘要, type: text }
-      # 分类用 list（自由字符串数组），不限制可选值，避免保存报 "fix errors"
-      - { name: categories, label: 分类, type: list, item: { type: string } }
-      # 正文用 markdown 类型，原样保存（富文本会改写 HTML/注释导致报错）
-      - { name: body, label: 正文, type: markdown }
+      # 分类：用 select + list:true（可多选），显式 value/label
+      #   - 存的还是原 slug（fuli / yuanquan），URL 不变
+      #   - 下拉里显示中文，方便你选
+      - name: categories
+        label: 分类
+        type: select
+        list: true
+        options:
+          values:
+            - value: fuli
+              label: 福利
+            - value: yuanquan
+              label: 猿圈
+      # 正文：markdown 类型（原样保存，支持代码高亮）
+      #   加链接：[显示文字](网址)
+      #   代码块：用 ```语言 开头、``` 结尾 包裹
+      - name: body
+        label: 正文
+        type: markdown
+        description: "支持 Markdown：加链接用 [文字](网址)；代码用 ```语言 包裹可语法高亮；保存即生效。"
 
   # 独立页面 → content/pages/{slug}.md → 网址 /{slug}/
   - name: pages
@@ -47,4 +64,7 @@ content:
       - { name: title, label: 标题, type: string, required: true }
       - { name: slug, label: 固定链接(slug), type: string, required: true }
       - { name: draft, label: 草稿, type: boolean, default: false }
-      - { name: body, label: 正文, type: markdown }
+      - name: body
+        label: 正文
+        type: markdown
+        description: "支持 Markdown：加链接用 [文字](网址)；代码用 ```语言 包裹可语法高亮。"

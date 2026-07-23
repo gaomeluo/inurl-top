@@ -37,6 +37,7 @@ summaryLength = 60
     unsafe = true
   [markup.highlight]
     noClasses = false
+    guessSyntax = true
 
 # ===== 顶部菜单（后续可在 Pages CMS 维护，或在此手写）=====
 [menus]

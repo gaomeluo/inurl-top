@@ -1,13 +1,21 @@
 {{ define "main" }}
-<article class="post">
-  <h1 class="post-title-single">{{ .Title }}</h1>
-  <div class="post-meta">
-    <time>{{ .Date.Format "2006-01-02" }}</time>
-    {{ with .GetTerms "categories" }}<span class="dot">·</span>{{ range . }}<a href="{{ .RelPermalink }}">{{ .Title }}</a>{{ end }}{{ end }}
+<article class="article-window reveal">
+  <div class="article-bar">
+    <span class="term-dot r"></span>
+    <span class="term-dot y"></span>
+    <span class="term-dot g"></span>
+    <span class="fname">{{ .File.ContentBaseName }}.md</span>
   </div>
-  <div class="post-content">
-    {{ .Content }}
+  <div class="article-body">
+    <h1 class="post-title-single">{{ .Title }}</h1>
+    <div class="post-meta-single">
+      <time>📅 {{ .Date.Format "2006-01-02" }}</time>
+      {{ with .GetTerms "categories" }}<span>·</span>{{ range . }}<a class="cat" href="{{ .RelPermalink }}">{{ .Title }}</a>{{ end }}{{ end }}
+    </div>
+    <div class="post-content">
+      {{ .Content }}
+    </div>
+    {{ with .GetTerms "categories" }}<div class="post-tags"><span>分类：</span>{{ range . }}<a class="chip" href="{{ .RelPermalink }}">{{ .Title }}</a>{{ end }}</div>{{ end }}
   </div>
-  {{ with .GetTerms "categories" }}<div class="post-tags"><span>分类：</span>{{ range . }}<a class="chip" href="{{ .RelPermalink }}">{{ .Title }}</a>{{ end }}</div>{{ end }}
 </article>
 {{ end }}

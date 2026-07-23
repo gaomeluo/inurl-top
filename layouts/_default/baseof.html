@@ -5,22 +5,45 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} - {{ .Site.Title }}{{ end }}</title>
   {{ with .Site.Params.description }}<meta name="description" content="{{ . }}">{{ end }}
-  <meta name="theme-color" content="#007fff">
+  <meta name="theme-color" content="#0d1117">
   <link rel="stylesheet" href="{{ "css/style.css" | relURL }}">
   <link rel="alternate" type="application/rss+xml" href="{{ "index.xml" | absURL }}" title="{{ .Site.Title }}">
+  {{ with .Site.Params.author }}<meta name="author" content="{{ . }}">{{ end }}
+  <script>
+    // 三态主题：dark / light / system，避免刷新闪烁
+    (function () {
+      try {
+        var t = localStorage.getItem('theme') || 'system';
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) { document.documentElement.setAttribute('data-theme', 'system'); }
+    })();
+  </script>
 </head>
 <body>
+  <div class="read-progress" id="readProgress"></div>
+
   <header class="site-header">
     <div class="container">
-      <a class="site-logo" href="/">{{ .Site.Title }}</a>
-      <nav class="site-nav">
-        <a class="nav-link{{ if .IsHome }} current{{ end }}" href="/">首页</a>
+      <a class="logo" href="/">
+        <span class="logo-mark">&lt;/&gt;</span>
+        <span>{{ .Site.Title }}</span>
+      </a>
+
+      <button class="menu-toggle" id="menuToggle" aria-label="菜单">☰</button>
+
+      <nav class="site-nav" id="siteNav">
+        <a class="nav-link{{ if .IsHome }} current{{ end }}" href="/">~/</a>
         {{ range .Site.Taxonomies.categories.Alphabetical }}
-          <a class="nav-link" href="{{ .Page.RelPermalink }}">{{ .Page.Title }}</a>
+          <a class="nav-link" href="{{ .Page.RelPermalink }}">#{{ .Page.Title }}</a>
         {{ end }}
         {{ range where .Site.RegularPages "Section" "pages" }}
           <a class="nav-link" href="{{ .RelPermalink }}">{{ .Title }}</a>
         {{ end }}
+        <span class="theme-switch" role="group" aria-label="主题">
+          <button data-set="light" title="浅色">☀️</button>
+          <button data-set="dark" title="深色">🌙</button>
+          <button data-set="system" title="跟随系统">🖥️</button>
+        </span>
       </nav>
     </div>
   </header>
@@ -30,7 +53,74 @@
   </main>
 
   <footer class="site-footer">
-    <p>© {{ now.Year }} {{ .Site.Title }} · 由 <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a> 驱动 · 托管于 Cloudflare Pages</p>
+    <p>© {{ now.Year }} {{ .Site.Title }} <span class="heart">♥</span> · built with <a href="https://gohugo.io" target="_blank" rel="noopener">&lt;Hugo/&gt;</a> · deployed on Cloudflare Pages</p>
   </footer>
+
+  <script>
+    // ---- 主题切换 ----
+    (function () {
+      var root = document.documentElement;
+      var btns = document.querySelectorAll('.theme-switch button');
+      function sync() {
+        var cur = root.getAttribute('data-theme') || 'system';
+        btns.forEach(function (b) {
+          b.classList.toggle('active', b.dataset.set === cur);
+        });
+      }
+      btns.forEach(function (b) {
+        b.addEventListener('click', function () {
+          var v = b.dataset.set;
+          root.setAttribute('data-theme', v);
+          try { localStorage.setItem('theme', v); } catch (e) {}
+          sync();
+        });
+      });
+      sync();
+    })();
+
+    // ---- 移动端菜单 ----
+    (function () {
+      var t = document.getElementById('menuToggle');
+      var n = document.getElementById('siteNav');
+      if (t && n) {
+        t.addEventListener('click', function () { n.classList.toggle('open'); });
+        n.querySelectorAll('a').forEach(function (a) {
+          a.addEventListener('click', function () { n.classList.remove('open'); });
+        });
+      }
+    })();
+
+    // ---- 阅读进度条 ----
+    (function () {
+      var bar = document.getElementById('readProgress');
+      var art = document.querySelector('.article-body') || document.querySelector('article');
+      if (!bar || !art) return;
+      function upd() {
+        var h = document.documentElement;
+        var sc = h.scrollTop || document.body.scrollTop;
+        var max = art.scrollHeight - h.clientHeight;
+        var p = max > 0 ? (sc / max) * 100 : 0;
+        bar.style.width = Math.min(100, Math.max(0, p)) + '%';
+      }
+      window.addEventListener('scroll', upd, { passive: true });
+      window.addEventListener('resize', upd);
+      upd();
+    })();
+
+    // ---- 滚动渐入 ----
+    (function () {
+      var els = document.querySelectorAll('.reveal');
+      if (!els.length || !('IntersectionObserver' in window)) {
+        els.forEach(function (e) { e.classList.add('in'); });
+        return;
+      }
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+        });
+      }, { threshold: 0.08 });
+      els.forEach(function (e) { io.observe(e); });
+    })();
+  </script>
 </body>
 </html>
