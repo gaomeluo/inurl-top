@@ -3,7 +3,8 @@ title: 魔戒VPN——节点多、速度快、稳定，推荐！！！
 slug: mojie
 date: 2023-05-16T14:09:00
 draft: false
-categories: 福利
+categories:
+  - fuli
 ---
 这个是我用的很久之后才推荐得，之前用的好多不是这原因就是那原因的和谐跑路了，但是这个目前稳得很。
 
@@ -13,7 +14,7 @@ categories: 福利
 
 
 
-#### 传送门：https://inurl.link/mojie
+#### 传送门：[https://inurl.link/mojie](https://inurl.link/mojie)
 
 
 
@@ -53,7 +54,7 @@ categories: 福利
 
 之前我也自己买过服务器自己搭建梯子，奈何封的速度太快了，vps也不便宜，还没有这个便宜，如果你没有合适的，或者现在用的不合适，不妨用一下这个魔法，真的不错。
 
-#### 传送门：https://inurl.link/mojie
+#### 传送门：[https://inurl.link/mojie](https://inurl.link/mojie)
 
 
 
