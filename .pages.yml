@@ -1,0 +1,51 @@
+# ============================================
+# Pages CMS 配置（浏览器写作后台，跑在 Cloudflare Pages）
+# 在线编辑：app.pagescms.org  →  授权 GitHub 仓库即可
+# 自托管：把 pages-cms 官方仓库部署到 Cloudflare Pages 亦可
+# 本文件必须放在仓库根目录
+# ============================================
+
+# ---- 媒体（图片）存放：对齐原 Typecho 的 usr/uploads ----
+# input  = 仓库内目录；output = 对外访问 URL 前缀
+# 这样编辑器上传的图片最终落在 static/usr/uploads/，
+# 对外地址就是 https://inurl.top/usr/uploads/...（与原站一致）
+media:
+  input: static/usr/uploads
+  output: /usr/uploads
+  extensions: [png, jpg, jpeg, gif, webp, svg]
+
+# ---- 内容集合 ----
+content:
+  # 文章 → content/posts/{slug}.md → 网址 /archives/{slug}/
+  - name: posts
+    label: 文章
+    type: collection
+    path: content/posts
+    filename: "{fields.slug}.md"
+    format: yaml-frontmatter
+    view:
+      fields: [title, date, draft]
+    fields:
+      - { name: title, label: 标题, type: string, required: true }
+      - { name: slug, label: 固定链接(slug), type: string, required: true }
+      - { name: date, label: 日期, type: date, options: { format: yyyy-MM-dd'T'HH:mm:ss, time: true } }
+      - { name: draft, label: 草稿, type: boolean, default: true }
+      - { name: description, label: 摘要, type: text }
+      # 分类：把你自己原有的分类名填进 values 里（保持和原站一致）
+      - { name: categories, label: 分类, type: select, list: true, options: { values: [] } }
+      - { name: body, label: 正文, type: rich-text }
+
+  # 独立页面 → content/pages/{slug}.md → 网址 /{slug}/
+  - name: pages
+    label: 独立页面
+    type: collection
+    path: content/pages
+    filename: "{fields.slug}.md"
+    format: yaml-frontmatter
+    view:
+      fields: [title, draft]
+    fields:
+      - { name: title, label: 标题, type: string, required: true }
+      - { name: slug, label: 固定链接(slug), type: string, required: true }
+      - { name: draft, label: 草稿, type: boolean, default: false }
+      - { name: body, label: 正文, type: rich-text }

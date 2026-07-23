@@ -1,0 +1,8 @@
+/public/
+/resources/
+.hugo_build.lock
+.DS_Store
+# 服务器导出备份（含 40MB+ 上传文件），仅在本地留作备份，不进 git
+_server_export/
+# Hugo 本地二进制（如本地校验用）
+/.hugo/

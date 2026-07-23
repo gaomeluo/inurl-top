@@ -1,0 +1,14 @@
+{{ define "main" }}
+<section class="home">
+  <h1 class="home-title">{{ .Site.Title }}</h1>
+  {{ with .Site.Params.description }}<p class="home-desc">{{ . }}</p>{{ end }}
+  <ul class="post-list">
+    {{ range where .Site.RegularPages "Section" "posts" }}
+    <li>
+      <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+      <time>{{ .Date.Format "2006-01-02" }}</time>
+    </li>
+    {{ end }}
+  </ul>
+</section>
+{{ end }}

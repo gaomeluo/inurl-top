@@ -1,0 +1,61 @@
+:root {
+  --bg: #ffffff;
+  --fg: #1a1a1a;
+  --muted: #6b7280;
+  --accent: #2563eb;
+  --border: #e5e7eb;
+  --card: #f9fafb;
+  --max: 720px;
+}
+[data-theme="dark"] {
+  --bg: #0f1115;
+  --fg: #e5e7eb;
+  --muted: #9ca3af;
+  --accent: #60a5fa;
+  --border: #1f2937;
+  --card: #16191f;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1115; --fg: #e5e7eb; --muted: #9ca3af;
+    --accent: #60a5fa; --border: #1f2937; --card: #16191f;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+.container { max-width: var(--max); margin: 0 auto; padding: 0 20px; }
+.site-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 20px; border-bottom: 1px solid var(--border);
+  max-width: var(--max); margin: 0 auto;
+}
+.brand { font-weight: 700; font-size: 1.1rem; color: var(--fg); text-decoration: none; }
+.site-nav { display: flex; align-items: center; gap: 16px; }
+.site-nav a { color: var(--muted); text-decoration: none; font-size: .95rem; }
+.site-nav a:hover { color: var(--accent); }
+#theme-toggle {
+  background: none; border: 1px solid var(--border); color: var(--fg);
+  border-radius: 8px; padding: 4px 8px; cursor: pointer; font-size: 1rem;
+}
+main.container { padding-top: 40px; padding-bottom: 60px; }
+.post-list { list-style: none; padding: 0; }
+.post-list li {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 14px 0; border-bottom: 1px solid var(--border);
+}
+.post-list a { color: var(--fg); text-decoration: none; font-weight: 500; }
+.post-list a:hover { color: var(--accent); }
+.post-list time { color: var(--muted); font-size: .85rem; }
+.post-header { margin-bottom: 24px; }
+.post-meta { color: var(--muted); font-size: .9rem; margin-top: 8px; }
+.post-content img { max-width: 100%; height: auto; border-radius: 8px; }
+h1 { font-size: 1.8rem; line-height: 1.3; }
+.site-footer { text-align: center; color: var(--muted); font-size: .85rem; padding: 30px 0; }
+a { color: var(--accent); }
