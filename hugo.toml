@@ -13,8 +13,8 @@ summaryLength = 60
 # ===== 永久链接：1:1 还原原 Typecho 结构 =====
 [permalinks]
   posts = "/archives/:slug/"   # 文章  → /archives/{slug}/
-  page = "/:slug/"            # 独立页面 → /{slug}/
-  categories = "/:slug/"      # 分类  → /{slug}/
+  pages = "/:slug/"            # 独立页面（content/pages/ 的 section 即 pages）→ /{slug}/
+  categories = "/:slug/"      # 分类 term 页（content/categories/<slug>/）→ /{slug}/
 
 # ===== 分类法 =====
 [taxonomies]
