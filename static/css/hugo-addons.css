@@ -1,0 +1,48 @@
+/* ===== Hugo 专属增强（仅新增类，不覆盖原 Minimalism 视觉） ===== */
+
+/* 客户端搜索弹窗（index.json 检索） */
+.search-modal-mask { position: fixed; inset: 0; background: rgba(20,24,28,.5); z-index: 2000; display: none; }
+.search-modal-mask.open { display: block; }
+.search-modal { position: fixed; top: 12%; left: 50%; transform: translateX(-50%); width: 90%; max-width: 640px; max-height: 76vh; background: #fff; border-radius: 8px; z-index: 2001; display: none; flex-direction: column; overflow: hidden; box-shadow: 0 24px 80px rgba(0,0,0,.3); }
+.search-modal.open { display: flex; }
+.search-modal input { width: 100%; border: none; border-bottom: 1px solid #eee; padding: 18px 22px; font-size: 18px; box-sizing: border-box; outline: none; }
+.search-modal .results { overflow: auto; padding: 8px 0; }
+.search-modal .results a { display: block; padding: 12px 22px; border-bottom: 1px solid #f2f2f2; }
+.search-modal .results a:hover { background: #f8f9fa; }
+.search-modal .results .r-title { font-size: 16px; color: #222; font-weight: 600; }
+.search-modal .results .r-excerpt { font-size: 13px; color: #888; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.search-modal .results .r-empty { padding: 20px; color: #999; text-align: center; }
+.search-modal .results .r-cat { font-size: 12px; color: #007fff; margin-right: 8px; }
+
+/* 顶栏搜索框微调（点击触发弹窗） */
+.site-search { padding-top: 6px; }
+
+/* 阅读进度条 */
+#read-progress { position: fixed; top: 0; left: 0; height: 3px; width: 0; background: #007fff; z-index: 1000; transition: width .1s; }
+
+/* 滚动渐入：默认即可见，避免内容丢失 */
+.reveal { opacity: 1; transform: none; }
+.reveal.in { opacity: 1; transform: none; }
+
+/* Giscus 评论容器 */
+.giscus { margin-top: 24px; }
+
+/* 回顶部小三角（配合原 .return-top） */
+.return-top .tri { display: block; width: 0; height: 0; margin: 18px auto 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 10px solid #007fff; }
+
+/* Chroma 代码高亮（GitHub 浅色，匹配原 highlight.js default） */
+.chroma { background: #f3f3f3; color: #24292e; border-radius: 4px; padding: 12px 14px; }
+.chroma .err { color: #a61717; background: #e3d2d2; }
+.chroma .k, .chroma .kd, .chroma .kn, .chroma .kp, .chroma .kr, .chroma .kt { color: #d73a49; }
+.chroma .o, .chroma .ow { color: #d73a49; }
+.chroma .c, .chroma .c1, .chroma .cm, .chroma .cs, .chroma .cp { color: #6a737d; font-style: italic; }
+.chroma .s, .chroma .s1, .chroma .s2, .chroma .sx, .chroma .dl { color: #032f62; }
+.chroma .se { color: #005cc5; }
+.chroma .m, .chroma .mi, .chroma .mf, .chroma .il, .chroma .mo { color: #005cc5; }
+.chroma .nf { color: #6f42c0; }
+.chroma .nc, .chroma .nn { color: #6f42c0; }
+.chroma .nb, .chroma .bp { color: #005cc5; }
+.chroma .na { color: #005cc5; }
+.chroma .nt { color: #22863a; }
+.chroma .nx { color: #24292e; }
+.chroma .nl { color: #d73a49; }

@@ -1,10 +1,10 @@
 {{ define "main" }}
 <div class="page-containers">
   <header class="page-bg about-bg"></header>
-  <h1 class="page-title-banner">{{ .Site.Title }}</h1>
+  <h1 class="page-title">{{ .Site.Title }}</h1>
 
-  <div class="page-inner">
-    <div class="row">
+  <div class="row">
+    <div class="post-content" itemprop="articleBody">
       <div id="main" class="col-mb-12 col-8" role="main">
         {{ $pages := where .Site.RegularPages "Section" "posts" }}
         {{ $pag := .Paginate $pages }}

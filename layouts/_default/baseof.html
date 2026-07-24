@@ -11,7 +11,9 @@
   {{- end }}
   <link rel="canonical" href="{{ .Permalink }}">
   <link rel="icon" href="/img/header.jpg" type="image/jpeg">
+  <link rel="stylesheet" href="/css/grid.css">
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/hugo-addons.css">
   {{ with .OutputFormats.Get "RSS" }}<link rel="{{ .RelPermalink }}" type="application/rss+xml" title="{{ $.Site.Title }}">{{ end }}
 </head>
 <body>
