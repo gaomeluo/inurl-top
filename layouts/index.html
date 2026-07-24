@@ -1,47 +1,20 @@
 {{ define "main" }}
-{{ $pages := where .Site.RegularPages "Section" "posts" }}
-{{ $pag := .Paginate $pages }}
+<div class="page-containers">
+  <header class="page-bg about-bg"></header>
+  <h1 class="page-title-banner">{{ .Site.Title }}</h1>
 
-<section class="hero reveal">
-  <div class="term-window">
-    <div class="term-bar">
-      <span class="term-dot r"></span>
-      <span class="term-dot y"></span>
-      <span class="term-dot g"></span>
-      <span class="term-title">~/blog — zsh — 80×24</span>
-    </div>
-    <div class="term-body">
-      <div class="term-line"><span class="term-prompt">➜</span> <span class="term-path">~/blog</span> <span class="term-cmd">cat 顶级索引.md</span></div>
-      <h1 class="hero-title"><span class="grad">{{ .Site.Title }}</span><span class="cursor"></span></h1>
-      <div class="term-line term-comment">// 一个程序猿的折腾记录 · 代码 / 工具 / 资源</div>
-      <div class="hero-sub">这里记录我踩过的坑、攒下的脚本，和一点不值钱但好玩的想法。</div>
-      <div class="hero-tags">
-        <span class="chip">#福利</span>
-        <span class="chip">#猿圈</span>
-        <span class="chip">console.log("hello, world")</span>
+  <div class="page-inner">
+    <div class="row">
+      <div id="main" class="col-mb-12 col-8" role="main">
+        {{ $pages := where .Site.RegularPages "Section" "posts" }}
+        {{ $pag := .Paginate $pages }}
+        {{ range $pag.Pages }}
+          {{ partial "post-card.html" . }}
+        {{ end }}
+        {{ template "_internal/pagination.html" . }}
       </div>
+      {{ partial "sidebar.html" . }}
     </div>
   </div>
-</section>
-
-<div class="section-title">最新文章<span class="count">（共 {{ len $pages }} 篇）</span><span class="line"></span></div>
-
-<div class="post-grid">
-  {{ range $pag.Pages }}
-    <article class="post-card reveal">
-      <div class="post-filename"><span class="dot">●</span>{{ .File.ContentBaseName }}.md</div>
-      <div class="post-card-body">
-        <h2 class="post-title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-        <div class="post-meta">
-          <time>{{ .Date.Format "2006-01-02" }}</time>
-          {{ with .GetTerms "categories" }}<span>·</span>{{ range . }}<span class="cat">{{ .Title }}</span>{{ end }}{{ end }}
-        </div>
-        <div class="post-excerpt">{{ .Summary }}</div>
-        <div class="arrow">→ open {{ .File.ContentBaseName }}.md</div>
-      </div>
-    </article>
-  {{ end }}
 </div>
-
-{{ template "_internal/pagination.html" . }}
 {{ end }}

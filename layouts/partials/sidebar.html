@@ -1,0 +1,51 @@
+<aside class="col-mb-12 col-4 kit-hidden-tb" id="secondary" role="complementary">
+  <section class="widget">
+    <div class="info-header" style="background-image:url(/img/about.jpg);">
+      <span class="info-header-img">
+        <a href="{{ .Site.BaseURL }}" target="_blank"><img src="/img/header.jpg" alt="{{ .Site.Title }}"></a>
+      </span>
+    </div>
+    <div class="follow-me">
+      <a href="https://lixiaoxin.com/" target="_blank">主页</a>
+      <a rel="nofollow" href="https://github.com/gaomeluo" target="_blank">Github</a>
+      <a rel="nofollow" href="tencent://message/?uin=825370356&Site=&Menu=yes">QQ</a>
+    </div>
+  </section>
+
+  <section class="widget">
+    <h3 class="widget-title">最新文章</h3>
+    <ul class="widget-list">
+      {{ range first 8 .Site.RegularPages.ByDate.Reverse }}
+        <li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>
+      {{ end }}
+    </ul>
+  </section>
+
+  <section class="widget">
+    <h3 class="widget-title">标签云</h3>
+    <div class="tag-cloud">
+      {{ range .Site.Taxonomies.tags }}
+        <a class="t-{{ if gt .Count 8 }}lg{{ else if gt .Count 3 }}md{{ else }}sm{{ end }}" href="{{ .Page.RelPermalink }}">{{ .Page.Title }}</a>
+      {{ end }}
+    </div>
+  </section>
+
+  <section class="widget">
+    <h3 class="widget-title">分类</h3>
+    <ul class="widget-list">
+      {{ range .Site.Taxonomies.categories }}
+        <li><a href="{{ .Page.RelPermalink }}">{{ .Page.Title }}</a> ({{ .Pages | len }})</li>
+      {{ end }}
+    </ul>
+  </section>
+
+  <section class="widget">
+    <h3 class="widget-title">归档</h3>
+    <ul class="widget-list">
+      {{ range .Site.RegularPages.GroupByDate "2006年01月" }}
+        <li style="color:#999">{{ .Key }}</li>
+        {{ range .Pages }}<li style="padding-left:14px"><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>{{ end }}
+      {{ end }}
+    </ul>
+  </section>
+</aside>

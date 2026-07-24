@@ -10,6 +10,10 @@ title = "顶级索引"
 defaultContentLanguage = "zh"
 summaryLength = 60
 
+# ===== 站点副标题（顶栏/横幅用） =====
+[params]
+  description = "一个程序猿的折腾记录"
+
 # ===== 永久链接：1:1 还原原 Typecho 结构 =====
 [permalinks]
   posts = "/archives/:slug/"   # 文章  → /archives/{slug}/
@@ -38,6 +42,7 @@ summaryLength = 60
   [markup.highlight]
     noClasses = false
     guessSyntax = true
+    style = "github"
 
 # ===== 顶部菜单（后续可在 Pages CMS 维护，或在此手写）=====
 [menus]

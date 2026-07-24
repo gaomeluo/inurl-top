@@ -1,0 +1,28 @@
+<header id="header" class="clearfix Navbar">
+  <div class="container">
+    <div class="rows">
+      <div class="site-name col-mb-3 col-2">
+        <a id="logo" href="{{ .Site.BaseURL }}">{{ .Site.Title }}</a>
+        {{ with .Site.Params.description }}<p class="description hide">{{ . }}</p>{{ end }}
+      </div>
+      <div class="col-mb-9 col-7">
+        <nav id="nav-menu" class="clearfix" role="navigation">
+          <a{{ if .IsHome }} class="current"{{ end }} href="{{ .Site.BaseURL }}">首页</a>
+          {{ range .Site.Taxonomies.categories }}
+            <a{{ if .Page.IsCurrent }} class="current"{{ end }} href="{{ .Page.RelPermalink }}" title="{{ .Page.Title }}">{{ .Page.Title }}</a>
+          {{ end }}
+          <a target="_blank" rel="nofollow" href="https://linux.gaomeluo.com/">Linux大全</a>
+        </nav>
+      </div>
+      <div class="site-search kit-hidden-tb col-3">
+        <form id="search" role="search" onsubmit="openSearch(); return false;">
+          <input type="text" id="siteSearchInput" placeholder="搜索文章…" />
+          <button type="submit" id="searchToggle" aria-label="搜索"></button>
+        </form>
+      </div>
+      <div class="hamburger hide" id="hamburger-1" onclick="toggleNav()">
+        <span class="line"></span><span class="line"></span><span class="line"></span>
+      </div>
+    </div>
+  </div>
+</header>

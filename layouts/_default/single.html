@@ -1,48 +1,39 @@
 {{ define "main" }}
-<article class="article-window reveal">
-  <div class="article-bar">
-    <span class="term-dot r"></span>
-    <span class="term-dot y"></span>
-    <span class="term-dot g"></span>
-    <span class="fname">{{ .File.ContentBaseName }}.md</span>
-  </div>
-  <div class="article-body">
-    <h1 class="post-title-single">{{ .Title }}</h1>
-    <div class="post-meta-single">
-      <time>📅 {{ .Date.Format "2006-01-02" }}</time>
-      {{ with .GetTerms "categories" }}<span>·</span>{{ range . }}<a class="cat" href="{{ .RelPermalink }}">{{ .Title }}</a>{{ end }}{{ end }}
-    </div>
-    <div class="post-content">
-      {{ .Content }}
-    </div>
-    {{ with .GetTerms "categories" }}<div class="post-tags"><span>分类：</span>{{ range . }}<a class="chip" href="{{ .RelPermalink }}">{{ .Title }}</a>{{ end }}</div>{{ end }}
-    {{ with .GetTerms "tags" }}<div class="post-tags"><span>标签：</span>{{ range . }}<a class="chip tag" href="{{ .RelPermalink }}">{{ .Title }}</a>{{ end }}</div>{{ end }}
-  </div>
+<div class="row">
+  <div id="main" class="col-mb-12 col-8" role="main">
+    <article class="post shadow reveal">
+      <h1 class="post-title">{{ .Title }}</h1>
+      <ul class="post-meta">
+        <li>时间: <time datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date.Format "2006-01-02 15:04" }}</time></li>
+        {{ with .GetTerms "categories" }}<li>分类: {{ range . }}<a href="{{ .RelPermalink }}">{{ .Title }}</a> {{ end }}</li>{{ end }}
+        <li>阅读量: <span id="busuanzi_value_page_pv">—</span></li>
+        <li><a href="#comments">评论</a></li>
+      </ul>
+      <div class="post-content">{{ .Content }}</div>
+      {{ with .GetTerms "tags" }}<p class="tags">标签: {{ range . }}<a href="{{ .RelPermalink }}">{{ .Title }}</a>{{ end }}</p>{{ end }}
+    </article>
 
-  <nav class="post-nav">
-    {{ with .Prev }}<a class="pn prev" href="{{ .RelPermalink }}">← {{ .Title }}</a>{{ end }}
-    {{ with .Next }}<a class="pn next" href="{{ .RelPermalink }}">{{ .Title }} →</a>{{ end }}
-  </nav>
+    <nav class="post-near">
+      <li>上一篇: {{ with .Prev }}<a href="{{ .RelPermalink }}">{{ .Title }}</a>{{ else }}没有了{{ end }}</li>
+      <li>下一篇: {{ with .Next }}<a href="{{ .RelPermalink }}">{{ .Title }}</a>{{ else }}没有了{{ end }}</li>
+    </nav>
 
-  <div class="post-foot">
-    <span class="views">📊 阅读量：<span id="busuanzi_value_page_pv">—</span></span>
+    <div class="giscus"></div>
+    <script src="https://giscus.app/client.js"
+            data-repo="gaomeluo/inurl-top"
+            data-repo-id="R_kgDOThbWaw"
+            data-category="Announcements"
+            data-category-id="DIC_kwDOThbWa84DB4AG"
+            data-mapping="pathname"
+            data-strict="0"
+            data-reactions-enabled="1"
+            data-emit-metadata="0"
+            data-input-position="bottom"
+            data-theme="light"
+            data-lang="zh-CN"
+            crossorigin="anonymous" async>
+    </script>
   </div>
-
-  <div class="giscus"></div>
-  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-  <script src="https://giscus.app/client.js"
-          data-repo="gaomeluo/inurl-top"
-          data-repo-id="REPO_ID_PLACEHOLDER"
-          data-category="Announcements"
-          data-category-id="CATEGORY_ID_PLACEHOLDER"
-          data-mapping="pathname"
-          data-strict="0"
-          data-reactions-enabled="1"
-          data-emit-metadata="0"
-          data-input-position="bottom"
-          data-theme="preferred_color_scheme"
-          data-lang="zh-CN"
-          crossorigin="anonymous" async>
-  </script>
-</article>
+  {{ partial "sidebar.html" . }}
+</div>
 {{ end }}

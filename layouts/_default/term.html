@@ -1,20 +1,13 @@
 {{ define "main" }}
-<div class="archive-title">~/<span class="name">{{ .Title }}</span>/</div>
-<div class="post-grid">
-  {{ $pag := .Paginate (.Pages.ByDate.Reverse) }}
-  {{ range $pag.Pages }}
-    <article class="post-card reveal">
-      <div class="post-filename"><span class="dot">●</span>{{ .File.ContentBaseName }}.md</div>
-      <div class="post-card-body">
-        <h2 class="post-title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-        <div class="post-meta">
-          <time>{{ .Date.Format "2006-01-02" }}</time>
-        </div>
-        <div class="post-excerpt">{{ .Summary }}</div>
-        <div class="arrow">→ open {{ .File.ContentBaseName }}.md</div>
-      </div>
-    </article>
-  {{ end }}
+<div class="row">
+  <div id="main" class="col-mb-12 col-8" role="main">
+    <div class="archive-title">{{ .Title }}</div>
+    {{ $pag := .Paginate .Pages }}
+    {{ range $pag.Pages }}
+      {{ partial "post-card.html" . }}
+    {{ end }}
+    {{ template "_internal/pagination.html" . }}
+  </div>
+  {{ partial "sidebar.html" . }}
 </div>
-{{ template "_internal/pagination.html" . }}
 {{ end }}

@@ -8,8 +8,8 @@ backend:
   name: github
   repo: gaomeluo/inurl-top
   branch: main
-  # ↓↓↓ 替换成你注册的 GitHub OAuth App 的 Client ID（见交付说明第②步）
-  app_id: <GITHUB_OAUTH_CLIENT_ID>
+  # ↓↓↓ 已填入用户提供的 GitHub OAuth App Client ID
+  app_id: Ov23liJ4fvPrfXbIBSdq
   # 若已绑定自定义域名 inurl.top，把下面改成 https://inurl.top
   base_url: https://inurl-top.pages.dev
 

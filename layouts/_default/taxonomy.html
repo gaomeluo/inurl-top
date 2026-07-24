@@ -1,11 +1,15 @@
 {{ define "main" }}
-<div class="section-title">分类索引<span class="line"></span></div>
-<div class="cat-grid">
-  {{ range .Site.Taxonomies.categories.Alphabetical }}
-    <a class="cat-card reveal" href="{{ .Page.RelPermalink }}">
-      <div class="cat-name">{{ .Page.Title }}</div>
-      <div class="cat-count">{{ .Count }} 篇文章</div>
-    </a>
-  {{ end }}
+<div class="row">
+  <div id="main" class="col-mb-12 col-8" role="main">
+    <div class="archive-title">{{ .Title }}</div>
+    <div class="post-content">
+      <ul class="widget-list">
+        {{ range .Site.Taxonomies.categories }}
+          <li><a href="{{ .Page.RelPermalink }}">{{ .Page.Title }}</a>（{{ .Pages | len }}）</li>
+        {{ end }}
+      </ul>
+    </div>
+  </div>
+  {{ partial "sidebar.html" . }}
 </div>
 {{ end }}
