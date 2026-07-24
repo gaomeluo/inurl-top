@@ -10,11 +10,9 @@ backend:
   branch: main
   # ↓↓↓ 已填入用户提供的 GitHub OAuth App Client ID
   app_id: Ov23liJ4fvPrfXbIBSdq
-  # 登录使用 Decap 内置的 Netlify OAuth 代理（无需自托管密钥、无需 Cloudflare 函数）：
-  # 显式指定代理地址，避免 Decap 误用 base_url 把登录甩去 inurl.top/auth 而 404。
-  # ⚠️ 必须手动：把 GitHub OAuth App 的 Authorization callback URL 设成下面这个固定地址：
-  #     https://api.netlify.com/auth/callback
-  auth_endpoint: https://api.netlify.com/auth
+  # Decap 的 github 后端默认就走 Netlify 代理 https://api.netlify.com/auth，
+  # 不要写 base_url / auth_endpoint（写完整 URL 反会被拼成双倍地址 → 404 Not Found）。
+  # ⚠️ 唯一手动项：GitHub OAuth App 的 Authorization callback URL = https://api.netlify.com/auth/callback（你已改好）
 
 # 图片存放（对齐原 Typecho 的 usr/uploads）
 media_folder: static/usr/uploads
