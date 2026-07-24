@@ -1,0 +1,60 @@
+# ============================================================
+# Decap CMS 配置（可视化编辑器：工具栏按钮 + 实时预览）
+# 访问地址：https://inurl.top/admin/  （或 https://inurl-top.pages.dev/admin/）
+# 首次打开需 GitHub 登录授权（见下方 backend.app_id 说明）
+# ============================================================
+
+backend:
+  name: github
+  repo: gaomeluo/inurl-top
+  branch: main
+  # ↓↓↓ 替换成你注册的 GitHub OAuth App 的 Client ID（见交付说明第②步）
+  app_id: <GITHUB_OAUTH_CLIENT_ID>
+  # 若已绑定自定义域名 inurl.top，把下面改成 https://inurl.top
+  base_url: https://inurl-top.pages.dev
+
+# 图片存放（对齐原 Typecho 的 usr/uploads）
+media_folder: static/usr/uploads
+public_folder: /usr/uploads
+
+collections:
+  - name: posts
+    label: 文章
+    folder: content/posts
+    slug: "{{slug}}"
+    create: true
+    fields:
+      - { name: title, label: 标题, widget: string, required: true }
+      - { name: slug, label: 固定链接(slug), widget: string, required: true }
+      - { name: date, label: 日期, widget: datetime }
+      - { name: draft, label: 草稿, widget: boolean, default: true }
+      - { name: description, label: 摘要, widget: text }
+      - name: categories
+        label: 分类
+        widget: list
+        field:
+          name: cat
+          label: 分类
+          widget: select
+          options:
+            - { value: fuli, label: 福利 }
+            - { value: yuanquan, label: 猿圈 }
+      - name: tags
+        label: 标签
+        widget: list
+        field:
+          name: tag
+          label: 标签
+          widget: string
+      - { name: body, label: 正文, widget: markdown }
+
+  - name: pages
+    label: 独立页面
+    folder: content/pages
+    slug: "{{slug}}"
+    create: true
+    fields:
+      - { name: title, label: 标题, widget: string, required: true }
+      - { name: slug, label: 固定链接(slug), widget: string, required: true }
+      - { name: draft, label: 草稿, widget: boolean, default: false }
+      - { name: body, label: 正文, widget: markdown }

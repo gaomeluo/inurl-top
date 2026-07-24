@@ -39,6 +39,7 @@
         {{ range where .Site.RegularPages "Section" "pages" }}
           <a class="nav-link" href="{{ .RelPermalink }}">{{ .Title }}</a>
         {{ end }}
+        <button class="search-toggle" id="searchToggle" aria-label="搜索">🔍</button>
         <span class="theme-switch" role="group" aria-label="主题">
           <button data-set="light" title="浅色">☀️</button>
           <button data-set="dark" title="深色">🌙</button>
@@ -122,5 +123,14 @@
       els.forEach(function (e) { io.observe(e); });
     })();
   </script>
+
+  <div class="search-modal" id="searchModal">
+    <div class="search-box">
+      <button class="search-close" aria-label="关闭">✕</button>
+      <input type="search" placeholder="搜索文章标题 / 内容 / 标签…" />
+      <div class="search-results"></div>
+    </div>
+  </div>
+  <script src="{{ "js/search.js" | relURL }}"></script>
 </body>
 </html>

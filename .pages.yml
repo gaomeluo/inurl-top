@@ -43,6 +43,25 @@ content:
               label: 福利
             - value: yuanquan
               label: 猿圈
+      # 标签：自由标签（Hugo 自动生成 /tags/<标签>/ 页）
+      - name: tags
+        label: 标签
+        type: select
+        list: true
+        options:
+          values:
+            - value: vpn
+              label: VPN
+            - value: 教程
+              label: 教程
+            - value: 影视
+              label: 影视
+            - value: 工具
+              label: 工具
+            - value: 资源
+              label: 资源
+            - value: chatgpt
+              label: ChatGPT
       # 正文：markdown 类型（原样保存，支持代码高亮）
       #   加链接：[显示文字](网址)
       #   代码块：用 ```语言 开头、``` 结尾 包裹
