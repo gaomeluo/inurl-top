@@ -34,7 +34,11 @@ export async function onRequest(context) {
   const tokenJson = await tokenRes.json();
   const token = tokenJson.access_token;
   if (!token) {
-    return new Response('GitHub 未返回 access_token：' + JSON.stringify(tokenJson), { status: 400 });
+    const maskedId = (clientId || '').slice(0, 6) + (clientId && clientId.length > 6 ? '…' : '');
+    const hint = tokenJson.error === 'incorrect_client_credentials'
+      ? '（凭证不匹配：请确认 Cloudflare 的 GITHUB_CLIENT_SECRET 是「Client ID=' + maskedId + '」这个 GitHub OAuth App 的密钥；若原始密钥已丢失，请去 GitHub 重新生成并同步到 Cloudflare）'
+      : '';
+    return new Response('GitHub 未返回 access_token：' + JSON.stringify(tokenJson) + hint, { status: 400 });
   }
 
   // 重定向回 Decap 后台，把 token 放进 hash 的 query 串里，
