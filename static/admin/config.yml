@@ -11,7 +11,12 @@ backend:
   # ↓↓↓ 已填入用户提供的 GitHub OAuth App Client ID
   app_id: Ov23liJ4fvPrfXbIBSdq
   # 自托管 OAuth：登录走 Cloudflare Pages Functions（functions/auth.js → /auth）
+  # 注意：Decap 的 github 后端会把 base_url 同时当成「鉴权前缀」和「GitHub API 基地址」，
+  #   → 鉴权走 https://inurl.top/auth（正确）
+  #   → API 却变成 https://inurl.top/api/v3（静态站不提供 → 404 → 登录循环）
+  # 解决：functions/api/v3/[[path]].js 把 /api/v3/* 反代到 https://api.github.com/*，使 API 调用通。
   base_url: https://inurl.top
+  auth_endpoint: /auth
   # ⚠️ 你需手动 2 步（本环境无法改 Cloudflare/GitHub 设置）：
   #   1) Cloudflare Pages 项目 inurl-top → Settings → Environment variables（选 Production）添加：
   #        GITHUB_CLIENT_ID     = Ov23liJ4fvPrfXbIBSdq
