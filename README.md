@@ -16,10 +16,11 @@
 ├── static/admin/            # Decap CMS 前端
 │   ├── index.html           # 加载 decap-cms 3.3.3
 │   └── config.yml          # ★ 后台配置（见下）
-├── functions/              # ★ Cloudflare Pages Functions（自托管 OAuth 核心）
+├── functions/              # ★ Cloudflare Pages Functions（自托管 OAuth + URL 重写）
 │   ├── auth.js                       # GET /auth         —— 弹窗握手页
 │   ├── auth/callback.js             # GET /auth/callback —— 换 token 并回传
-│   └── api/v3/[[path]].js          # /api/v3/*      —— GitHub API 反代
+│   ├── api/v3/[[path]].js          # /api/v3/*      —— GitHub API 反代
+│   └── archives/[[path]].js        # /archives/*    —— 大写字母 URL 301 转小写（见「坑 7」）
 ├── scripts/
 │   ├── migrate_comments_to_giscus.py   # 旧 Typecho 评论 → Giscus Discussions
 │   └── typecho_to_hugo.py             # SQL 解析工具（被上面引用）
@@ -133,6 +134,29 @@ GitHub → 头像 → Settings → **Developer settings** → **OAuth Apps** →
 - **原因**：把 GitHub Personal Access Token 明文硬编码进脚本，被 GitHub Push Protection（密钥扫描）识别拦截。
 - **解决**：密钥一律走环境变量（如 `GITHUB_TOKEN`），**绝不进仓库**；若已提交，在推送前 `git commit --amend` 重写（未推上远程时安全）。
   - ⚠️ GitHub 对泄露的 PAT 通常会**自动吊销**，泄露后需重发新 token。
+
+### 坑 7：文章链接含大写字母 → 跳首页 / 打不开
+- **现象**：文章正文里手写的站内超链接、`上一篇 / 下一篇` 里，只要 URL 含大写字母（如 `/archives/Disney/`、`/archives/ClashforOpenWRT/`）就跳回**首页**或 404；把大写改成小写（`/archives/disney/`）却能正常打开。
+- **原因**：Hugo 默认把永久链接路径**转成小写**（`permalinks = { posts = "/archives/:slug/" }` 生成的是 `/archives/disney/` 这种小写地址）。
+  - 文章**正文里手写的 URL 不会被 Hugo 改写**，所以大写链接对不上小写页；
+  - Cloudflare 找不到对应路径 → 被站点的「未匹配路由兜底」规则甩回首页（看起来像"跳首页"）。
+  - ⚠️ **注意**：`_default/single.html` 里 `上一篇/下一篇` 用的是 `{{ .Prev.RelPermalink }}` / `{{ .Next.RelPermalink }}`，Hugo 生成的 `RelPermalink` **已经是小写**，模板本身没 bug；问题只出在**正文手写的绝对/相对大写链接**。
+- **解决**：加 `functions/archives/[[path]].js`，把任意含大写字母的 `/archives/*` 请求 **301 重定向**到小写版本（已是小写的请求直接放行，不动静态文件和首页）。核心逻辑：
+
+  ```js
+  export function onRequest(context) {
+    const { request } = context;
+    const url = new URL(request.url);
+    const path = url.pathname;
+    if (/[A-Z]/.test(path)) {            // 仅当路径含大写字母才重定向
+      url.pathname = path.toLowerCase();
+      return Response.redirect(url.toString(), 301);
+    }
+    return context.next();               // 已是小写 → 正常返回静态文件
+  }
+  ```
+  - 验证：`curl -I https://inurl.top/archives/Disney/` → 301 且 `Location: /archives/disney/`；小写页、`/`、`/auth` 均不被误伤（200 / 正常）。
+  - 治本建议：写文时尽量用 Hugo 的 `relref` / `ref` 短码生成站内链接，让 Hugo 统一管理大小写，避免手写大写路径。
 
 ---
 
