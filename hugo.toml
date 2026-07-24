@@ -23,6 +23,7 @@ summaryLength = 60
 # ===== 分类法 =====
 [taxonomies]
   category = "categories"
+  tag = "tags"
 
 # ===== 分页 =====
 [pagination]

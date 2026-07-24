@@ -6,7 +6,7 @@
     {{ range $pag.Pages }}
       {{ partial "post-card.html" . }}
     {{ end }}
-    {{ template "_internal/pagination.html" . }}
+    {{ partial "pagination.html" . }}
   </div>
   {{ partial "sidebar.html" . }}
 </div>

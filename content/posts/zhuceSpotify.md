@@ -1,9 +1,12 @@
 ---
+
 title: "【教程】如何注册Spotify帐号？"
 slug: "zhuceSpotify"
 date: "2023-08-09T12:03:00"
 draft: false
 categories: ["yuanquan"]
+tags: ["Spotify"]
+views: 11643
 ---
 
 如果你觉得麻烦，觉得音乐水土不服的话，可以关注这篇文章《[免费音乐在线\下载\播放，手机端、PC端都有](https://blog.gaomeluo.com/archives/music/ "免费音乐在线\下载\播放，手机端、PC端都有")》，能够满足你的音乐需求。

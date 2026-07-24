@@ -1,9 +1,12 @@
 ---
+
 title: "Netflix使用教程及玩法！——可能是目前最全面的奈飞解析"
 slug: "netflixjiaocheng"
 date: "2023-05-16T17:05:00"
 draft: false
 categories: ["yuanquan"]
+tags: ["Netflix奈飞"]
+views: 6355
 ---
 
 如果你这个看烦了，想看电视直播，可以移步《[安卓电视盒子应用合集（附下载地址）](https://blog.gaomeluo.com/archives/dianshihezi/ "安卓电视盒子应用合集（附下载地址）")》

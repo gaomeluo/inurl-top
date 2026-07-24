@@ -1,9 +1,12 @@
 ---
+
 title: "奈飞Netflix、迪士尼Disney+、声田Spotify，这些平台的APP怎么下载？"
 slug: "xiazaiapp"
 date: "2023-07-17T11:12:00"
 draft: false
 categories: ["fuli", "yuanquan"]
+tags: ["Netflix奈飞", "google", "科学上网", "迪士尼Disney+", "Spotify"]
+views: 9515
 ---
 
 由于某些不可描述的原因，这些软件通常是无法在国内应用商店直接下载的，在一些野网站上下载又害怕担心不是正版软件，有病毒啥的。只想从官方渠道下载怎么办？

@@ -1,9 +1,12 @@
 ---
+
 title: "如何用自己的服务器搭建ChatGPT？【教程】"
 slug: "yunchatgpt"
 date: "2023-06-11T18:22:00"
 draft: false
 categories: ["yuanquan"]
+tags: ["如何搭梯子？", "科学上网", "chatgpt"]
+views: 4116
 ---
 
 上一篇教程我们教大家《[国内如何注册OpenAI帐号使用chatgpt？](https://inurl.top/archives/zhucechatgpt/ "国内如何注册OpenAI帐号使用chatgpt？")》

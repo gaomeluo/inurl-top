@@ -1,9 +1,12 @@
 ---
+
 title: "下载神器会员解锁版"
 slug: "pjxublei"
 date: "2025-11-21T16:21:00"
 draft: false
 categories: ["fuli"]
+tags: ["迅雷"]
+views: 4544
 ---
 
 其实，下载“学习资料”最好的工具还是迅雷，我的这篇文章《[迅雷下载“学习资料”的教程](https://inurl.top/archives/xiazaixuexiziliao/ "迅雷下载“学习资料”的教程")》里有介绍。

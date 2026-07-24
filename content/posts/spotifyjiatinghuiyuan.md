@@ -1,9 +1,12 @@
 ---
+
 title: "如何加入Spotify家庭组会员？"
 slug: "spotifyjiatinghuiyuan"
 date: "2023-06-16T09:35:00"
 draft: false
 categories: ["fuli"]
+tags: ["如何搭梯子？", "科学上网", "Spotify"]
+views: 3852
 ---
 
 如果你觉得麻烦，觉得音乐水土不服的话，可以关注这篇文章《[免费音乐在线\下载\播放，手机端、PC端都有](https://blog.gaomeluo.com/archives/music/ "免费音乐在线\下载\播放，手机端、PC端都有")》，能够满足你的音乐需求。

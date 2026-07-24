@@ -1,9 +1,12 @@
 ---
+
 title: "如何便宜购买奈飞Netflix账号套餐？"
 slug: "buyNetflix"
 date: "2023-05-16T19:13:00"
 draft: false
 categories: ["fuli"]
+tags: ["Netflix奈飞"]
+views: 8600
 ---
 
 如果你这个看烦了，想看电视直播，可以移步《[安卓电视盒子应用合集（附下载地址）](https://blog.gaomeluo.com/archives/dianshihezi/ "安卓电视盒子应用合集（附下载地址）")》

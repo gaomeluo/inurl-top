@@ -30,4 +30,13 @@
     </div>
   </section>
 
+  <section class="widget">
+    <h3 class="widget-title">最近回复</h3>
+    <ul class="widget-list">
+      {{ range .Site.Data.recent_comments }}
+        <li><a href="{{ .url }}">{{ .author }}: {{ .text }}</a></li>
+      {{ end }}
+    </ul>
+  </section>
+
 </aside>

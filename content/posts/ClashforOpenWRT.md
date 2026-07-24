@@ -1,9 +1,12 @@
 ---
+
 title: "Clash for OpenWRT（软路由）实现全屋设备科学上网"
 slug: "ClashforOpenWRT"
 date: "2023-05-17T18:32:00"
 draft: false
 categories: ["yuanquan"]
+tags: ["如何搭梯子？", "Netflix奈飞", "google", "科学上网"]
+views: 77219
 ---
 
 如果不想实现全屋覆盖，可以看这篇文章《[【教程】如何搭建梯子（VPN）？](https://inurl.top/archives/datizi/ "【教程】如何搭建梯子（VPN）？")》

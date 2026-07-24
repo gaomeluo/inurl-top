@@ -1,9 +1,12 @@
 ---
+
 title: "欧易(OKX)中国地区最新注册使用教程"
 slug: "okx"
 date: "2024-10-15T18:16:00"
 draft: false
 categories: ["fuli"]
+tags: ["虚拟币", "USDT"]
+views: 9247
 ---
 
 ### 介绍

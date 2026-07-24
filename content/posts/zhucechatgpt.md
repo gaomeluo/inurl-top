@@ -1,9 +1,12 @@
 ---
+
 title: "国内如何注册OpenAI帐号使用chatgpt？【保姆级教程】"
 slug: "zhucechatgpt"
 date: "2023-06-11T16:31:00"
 draft: false
 categories: ["yuanquan"]
+tags: ["如何搭梯子？", "google", "科学上网", "chatgpt"]
+views: 4845
 ---
 
 国内也是可以访问chatgpt的官网OpenAI，但是在国内并不支持OpenAI账号注册，大多数都是会提示：

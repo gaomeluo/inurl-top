@@ -1,9 +1,12 @@
 ---
+
 title: "如何便宜购买YouTube Premium账号套餐？"
 slug: "bayPremium"
 date: "2023-08-02T16:56:00"
 draft: false
 categories: ["fuli", "yuanquan"]
+tags: ["如何搭梯子？", "google", "科学上网"]
+views: 6798
 ---
 
 如果你这个看烦了，想看电视直播，可以移步《[安卓电视盒子应用合集（附下载地址）](https://blog.gaomeluo.com/archives/dianshihezi/ "安卓电视盒子应用合集（附下载地址）")》

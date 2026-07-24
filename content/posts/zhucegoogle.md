@@ -1,9 +1,12 @@
 ---
+
 title: "如何注册谷歌邮箱？"
 slug: "zhucegoogle"
 date: "2023-07-20T14:00:00"
 draft: false
 categories: ["yuanquan"]
+tags: ["如何搭梯子？", "google"]
+views: 5018
 ---
 
 谷歌Gmail邮箱，是由谷歌官方免费提供给我们使用的邮箱管理系统。如果你经常使用国外的平台，谷歌邮箱是一个不可缺少的账号。

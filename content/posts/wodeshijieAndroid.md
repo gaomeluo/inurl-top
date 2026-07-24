@@ -1,9 +1,12 @@
 ---
+
 title: "MCDL 我的世界国际版下载-安卓版本汇集下载"
 slug: "wodeshijieAndroid"
 date: "2025-11-24T19:49:00"
 draft: false
 categories: ["fuli"]
+tags: ["游戏"]
+views: 1296
 ---
 
 废话不多说了，懂得都懂，直接放上传送门吧！

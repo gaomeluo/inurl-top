@@ -1,9 +1,12 @@
 ---
+
 title: "2024币安最新注册使用教程（附中国大陆地区注册流程）"
 slug: "binance"
 date: "2024-10-14T18:14:00"
 draft: false
 categories: ["fuli"]
+tags: ["虚拟币", "USDT", "币安"]
+views: 7192
 ---
 
 ## 介绍

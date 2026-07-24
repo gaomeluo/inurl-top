@@ -1,9 +1,11 @@
 ---
+
 title: "5折！爱奇艺、优酷会员、腾讯视频会员、京东Plus会员低至5折优惠购买攻略！"
 slug: "shipinvip"
 date: "2023-08-08T10:55:00"
 draft: false
 categories: ["fuli"]
+views: 17017
 ---
 
 如果你这个看烦了，想看电视直播，可以移步《[安卓电视盒子应用合集（附下载地址）](https://blog.gaomeluo.com/archives/dianshihezi/ "安卓电视盒子应用合集（附下载地址）")》

@@ -1,9 +1,11 @@
 ---
+
 title: "任推邦如何下载安装？"
 slug: "rentuibanganzhuang"
 date: "2025-11-21T16:49:00"
 draft: false
 categories: ["yuanquan"]
+views: 4576
 ---
 
 很多网友知道任推邦，却找不到怎么安装任推邦的APP，今天教大家如何安装任推邦的app。

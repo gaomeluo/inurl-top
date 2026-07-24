@@ -1,9 +1,12 @@
 ---
+
 title: "如何观看奈飞Netflix里的视频？"
 slug: "lookNetflix"
 date: "2023-05-16T19:38:00"
 draft: false
 categories: ["fuli"]
+tags: ["Netflix奈飞", "NAS"]
+views: 10012
 ---
 
 如果你这个看烦了，想看电视直播，可以移步《[安卓电视盒子应用合集（附下载地址）](https://blog.gaomeluo.com/archives/dianshihezi/ "安卓电视盒子应用合集（附下载地址）")》

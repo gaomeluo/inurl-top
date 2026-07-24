@@ -1,9 +1,12 @@
 ---
+
 title: "如何加入YouTube Premium家庭组会员？"
 slug: "Premium"
 date: "2023-08-02T17:10:00"
 draft: false
 categories: ["fuli", "yuanquan"]
+tags: ["如何搭梯子？", "google", "科学上网"]
+views: 7378
 ---
 
 如果你这个看烦了，想看电视直播，可以移步《[安卓电视盒子应用合集（附下载地址）](https://blog.gaomeluo.com/archives/dianshihezi/ "安卓电视盒子应用合集（附下载地址）")》

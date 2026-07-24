@@ -1,9 +1,12 @@
 ---
+
 title: "NAS上Emby的海报墙搜刮不出来怎么办？【解决方案】"
 slug: "embyhaibao"
 date: "2023-11-13T15:33:00"
 draft: false
 categories: ["yuanquan"]
+tags: ["如何搭梯子？", "科学上网", "NAS"]
+views: 18747
 ---
 
 如果你这个看烦了，想看电视直播，可以移步《[安卓电视盒子应用合集（附下载地址）](https://blog.gaomeluo.com/archives/dianshihezi/ "安卓电视盒子应用合集（附下载地址）")》

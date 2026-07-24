@@ -1,9 +1,12 @@
 ---
+
 title: "Microsoft 365(Office365)v16.0.19328.20244 11月激活版"
 slug: "Microsoft365"
 date: "2025-11-24T20:37:00"
 draft: false
 categories: ["fuli"]
+tags: ["办公软件"]
+views: 1292
 ---
 
 Microsoft 365是微软公司推出的一款集成办公套件软件，整合了Office应用程序、云存储、电子邮件服务以及其他生产力工具，旨在为个人和企业用户提供全面且便捷的办公解决方案。
