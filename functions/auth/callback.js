@@ -7,8 +7,9 @@ export async function onRequest(context) {
   const url = new URL(request.url);
   const code = url.searchParams.get('code');
   const state = url.searchParams.get('state') || '';
-  const clientId = env.GITHUB_CLIENT_ID || 'Ov23liJ4fvPrfXbIBSdq';
-  const clientSecret = env.GITHUB_CLIENT_SECRET || '';
+  // 注意：Cloudflare 仪表盘粘贴密钥时常带入尾随空格/换行，必须用 trim 去掉，否则 GitHub 必然报 incorrect_client_credentials
+  const clientId = (env.GITHUB_CLIENT_ID || 'Ov23liJ4fvPrfXbIBSdq').trim();
+  const clientSecret = (env.GITHUB_CLIENT_SECRET || '').trim();
   const redirectUri = 'https://inurl.top/auth/callback';
 
   if (!code) {
@@ -35,8 +36,9 @@ export async function onRequest(context) {
   const token = tokenJson.access_token;
   if (!token) {
     const maskedId = (clientId || '').slice(0, 6) + (clientId && clientId.length > 6 ? '…' : '');
+    const secLen = clientSecret.length;
     const hint = tokenJson.error === 'incorrect_client_credentials'
-      ? '（凭证不匹配：请确认 Cloudflare 的 GITHUB_CLIENT_SECRET 是「Client ID=' + maskedId + '」这个 GitHub OAuth App 的密钥；若原始密钥已丢失，请去 GitHub 重新生成并同步到 Cloudflare）'
+      ? '（凭证不匹配：当前 client_id=' + maskedId + '，GITHUB_CLIENT_SECRET 长度=' + secLen + '。请确认：①该密钥来自 Client ID=' + maskedId + ' 的「同一个」GitHub OAuth App（不是你另一个 App 的）；②改完密钥后已「重新部署」让新值生效；③粘贴时无尾随空格/换行）'
       : '';
     return new Response('GitHub 未返回 access_token：' + JSON.stringify(tokenJson) + hint, { status: 400 });
   }

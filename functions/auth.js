@@ -7,7 +7,7 @@
 export async function onRequest(context) {
   const { request, env } = context;
   const url = new URL(request.url);
-  const clientId = env.GITHUB_CLIENT_ID || 'Ov23liJ4fvPrfXbIBSdq';
+  const clientId = (env.GITHUB_CLIENT_ID || 'Ov23liJ4fvPrfXbIBSdq').trim();
   const redirectUri = 'https://inurl.top/auth/callback';
   const scope = url.searchParams.get('scope') || 'repo';
   const state = url.searchParams.get('state') || '';
