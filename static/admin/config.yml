@@ -10,9 +10,14 @@ backend:
   branch: main
   # ↓↓↓ 已填入用户提供的 GitHub OAuth App Client ID
   app_id: Ov23liJ4fvPrfXbIBSdq
-  # Decap 的 github 后端默认就走 Netlify 代理 https://api.netlify.com/auth，
-  # 不要写 base_url / auth_endpoint（写完整 URL 反会被拼成双倍地址 → 404 Not Found）。
-  # ⚠️ 唯一手动项：GitHub OAuth App 的 Authorization callback URL = https://api.netlify.com/auth/callback（你已改好）
+  # 自托管 OAuth：登录走 Cloudflare Pages Functions（functions/auth.js → /auth）
+  base_url: https://inurl.top
+  # ⚠️ 你需手动 2 步（本环境无法改 Cloudflare/GitHub 设置）：
+  #   1) Cloudflare Pages 项目 inurl-top → Settings → Environment variables（选 Production）添加：
+  #        GITHUB_CLIENT_ID     = Ov23liJ4fvPrfXbIBSdq
+  #        GITHUB_CLIENT_SECRET = 你的 GitHub OAuth App 密钥（在 GitHub OAuth App 页面查看）
+  #   2) GitHub OAuth App 的 Authorization callback URL 改成：https://inurl.top/auth/callback
+  #   （注意：之前设的 api.netlify.com/auth/callback 是错的，对 Cloudflare Pages 站点无效）
 
 # 图片存放（对齐原 Typecho 的 usr/uploads）
 media_folder: static/usr/uploads
