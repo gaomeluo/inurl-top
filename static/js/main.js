@@ -35,3 +35,13 @@
     els.forEach(function (el) { el.classList.add('in'); });
   }
 })();
+
+// 标签云：随机配色（对齐原站 rgb(rand,rand,rand)）；悬停高亮由 CSS 的 :hover 接管
+(function () {
+  document.querySelectorAll('.tag-cloud a').forEach(function (a) {
+    var r = 110 + Math.floor(Math.random() * 120);
+    var g = 110 + Math.floor(Math.random() * 120);
+    var b = 110 + Math.floor(Math.random() * 120);
+    a.style.setProperty('--tc', 'rgb(' + r + ',' + g + ',' + b + ')');
+  });
+})();
