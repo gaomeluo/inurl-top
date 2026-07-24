@@ -10,8 +10,8 @@ backend:
   branch: main
   # ↓↓↓ 已填入用户提供的 GitHub OAuth App Client ID
   app_id: Ov23liJ4fvPrfXbIBSdq
-  # 若已绑定自定义域名 inurl.top，把下面改成 https://inurl.top
-  base_url: https://inurl-top.pages.dev
+  # 全程使用自定义域名 inurl.top 登录（GitHub 回调须设为 https://inurl.top/auth）
+  base_url: https://inurl.top
 
 # 图片存放（对齐原 Typecho 的 usr/uploads）
 media_folder: static/usr/uploads

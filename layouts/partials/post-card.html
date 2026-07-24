@@ -1,6 +1,6 @@
 <article class="post shadow index">
   <h2 class="post-title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-  <div class="post-content index">{{ .Summary }}</div>
+  <div class="post-content index">{{ $s := .Summary | plainify }}{{ substr $s 0 80 }}{{ if gt (len $s) 80 }}…{{ end }}</div>
   <ul class="post-meta index">
     <li>时间: <time datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date.Format "2006-01-02" }}</time></li>
     {{ with .GetTerms "categories" }}<li>{{ range . }}<a href="{{ .RelPermalink }}">{{ .Title }}</a> {{ end }}</li>{{ end }}

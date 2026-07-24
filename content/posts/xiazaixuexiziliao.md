@@ -1,9 +1,12 @@
 ---
+
 title: "迅雷下载“学习资料”的教程"
 slug: "xiazaixuexiziliao"
 date: "2023-05-16T08:23:00"
 draft: false
 categories: ["fuli"]
+views: 27269
+
 ---
 
 如果你这个看烦了，想看电视直播，可以移步《[安卓电视盒子应用合集（附下载地址）](https://blog.gaomeluo.com/archives/dianshihezi/ "安卓电视盒子应用合集（附下载地址）")》

@@ -14,10 +14,13 @@
 
   window.openSearch = function () {
     if (!modal) return;
+    var nav = document.getElementById('siteSearchInput');
+    var term = (nav && nav.value) ? nav.value.trim() : '';
     mask.classList.add('open');
     modal.classList.add('open');
-    load();
-    if (input) { input.value = ''; input.focus(); render(''); }
+    load().then(function () {
+      if (input) { input.value = term; input.focus(); render(term); }
+    });
   };
 
   window.closeSearch = function () {

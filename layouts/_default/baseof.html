@@ -40,5 +40,31 @@
 <script src="/js/search.js" defer></script>
 <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 {{ block "scripts" . }}{{ end }}
+<script>
+  // 全站链接新窗口打开（#锚点与 javascript: 除外）
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('a[href]').forEach(function (a) {
+      var h = a.getAttribute('href') || '';
+      if (h.charAt(0) !== '#' && !h.startsWith('javascript:') && !a.hasAttribute('target')) {
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+      }
+    });
+  });
+  // 阅读量 = 迁移前旧量(views) + 不蒜子新增量
+  (function () {
+    var pv = document.getElementById('busuanzi_value_page_pv');
+    if (!pv) return;
+    var base = parseInt(pv.getAttribute('data-base') || '0', 10) || 0;
+    if (!base) return;
+    var done = false;
+    var obs = new MutationObserver(function () {
+      if (done) return;
+      var cur = parseInt(pv.textContent, 10);
+      if (!isNaN(cur)) { pv.textContent = base + cur; done = true; obs.disconnect(); }
+    });
+    obs.observe(pv, { childList: true, characterData: true, subtree: true });
+  })();
+</script>
 </body>
 </html>

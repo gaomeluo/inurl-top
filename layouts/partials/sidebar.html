@@ -6,7 +6,7 @@
       </span>
     </div>
     <div class="follow-me">
-      <a href="https://lixiaoxin.com/" target="_blank">主页</a>
+      <a href="https://www.lixiaoxin.com" target="_blank">主页</a>
       <a rel="nofollow" href="https://github.com/gaomeluo" target="_blank">Github</a>
       <a rel="nofollow" href="tencent://message/?uin=825370356&Site=&Menu=yes">QQ</a>
     </div>
@@ -30,22 +30,4 @@
     </div>
   </section>
 
-  <section class="widget">
-    <h3 class="widget-title">分类</h3>
-    <ul class="widget-list">
-      {{ range .Site.Taxonomies.categories }}
-        <li><a href="{{ .Page.RelPermalink }}">{{ .Page.Title }}</a> ({{ .Pages | len }})</li>
-      {{ end }}
-    </ul>
-  </section>
-
-  <section class="widget">
-    <h3 class="widget-title">归档</h3>
-    <ul class="widget-list">
-      {{ range .Site.RegularPages.GroupByDate "2006年01月" }}
-        <li style="color:#999">{{ .Key }}</li>
-        {{ range .Pages }}<li style="padding-left:14px"><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>{{ end }}
-      {{ end }}
-    </ul>
-  </section>
 </aside>
