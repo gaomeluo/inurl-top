@@ -4,5 +4,5 @@
 <footer id="footer" role="contentinfo">
   &copy; {{ now.Year }} <a href="{{ .Site.BaseURL }}">{{ .Site.Title }}</a>
   | Powered by <a href="https://gohugo.io" target="_blank">Hugo</a>
-  | <a href="{{ .Site.RSSFeed.Permalink }}" target="_blank">RSS</a>
+  {{ with .OutputFormats.Get "RSS" }}| <a href="{{ .RelPermalink }}" target="_blank">RSS</a>{{ end }}
 </footer>

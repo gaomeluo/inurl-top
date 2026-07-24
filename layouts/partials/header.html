@@ -9,7 +9,7 @@
         <nav id="nav-menu" class="clearfix" role="navigation">
           <a{{ if .IsHome }} class="current"{{ end }} href="{{ .Site.BaseURL }}">首页</a>
           {{ range .Site.Taxonomies.categories }}
-            <a{{ if .Page.IsCurrent }} class="current"{{ end }} href="{{ .Page.RelPermalink }}" title="{{ .Page.Title }}">{{ .Page.Title }}</a>
+            <a href="{{ .Page.RelPermalink }}" title="{{ .Page.Title }}">{{ .Page.Title }}</a>
           {{ end }}
           <a target="_blank" rel="nofollow" href="https://linux.gaomeluo.com/">Linux大全</a>
         </nav>

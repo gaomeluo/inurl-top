@@ -12,3 +12,8 @@ _server_export/
 
 # 主题源包（仅用于本地复刻参考，不进版本库）
 _theme_src/
+
+# 本地 Hugo 二进制 / 下载包 / 构建缓存（仅本地校验用，不进公开仓库）
+hugo.exe
+_hugo*.zip
+/.hugo/
