@@ -18,3 +18,4 @@ export async function onRequest(context) {
     '&state=' + encodeURIComponent(state);
   return Response.redirect(gh, 302);
 }
+// (redeploy-marker: 触发 Cloudflare 重新部署以加载最新 GITHUB_CLIENT_SECRET)
