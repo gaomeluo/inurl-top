@@ -1,11 +1,11 @@
 ---
-title: "蓝帆云VPN-节点多、流量多 、便宜 ，推荐！！！"
-slug: "lanfanvpn"
-date: "2024-08-01T17:42:00"
+title: 蓝帆云VPN-节点多、流量多 、便宜 ，推荐！！！
+slug: lanfanvpn
+date: 2024-08-01T17:42:00
 draft: false
-categories: ["fuli"]
+categories:
+  - fuli
 ---
-
 LanFanCloud，即蓝帆云，是某老牌机场最新的分站，致力于以低价提供中高端专线线路节点，作为机场梯子工具加速器。它采用隧道中转优化线路和IPLC国际专线，支持 ShadowsocksR (SSR) 和 V2Ray 协议。其多条优质线路节点主要分布在美国、日本、韩国、香港、台湾、新加坡等中国用户常用的国家和地区。机场节点套餐定价灵活，从每月9元到95元不等，可以解锁流媒体和ChatGPT注册，满足各种应用需求，是性价比超高的机场梯子工具。
 
 ## 一、套餐详情
@@ -24,7 +24,7 @@ LanFanCloud，即蓝帆云，是某老牌机场最新的分站，致力于以低
 
 
 
-#### 官网：https://inurl.top/go/lanfan/
+#### 官网：[https://inurl.link/lanfan](https://inurl.link/lanfan)
 
 
 
@@ -38,13 +38,13 @@ LanFanCloud，即蓝帆云，是某老牌机场最新的分站，致力于以低
 
 
 
-#### 官网：https://inurl.top/go/lanfan/
+#### 官网：[https://inurl.link/lanfan](https://inurl.link/lanfan)
 
 
 
 -----------
 
-我之前也推荐过《[魔戒VPN——节点多、速度快、稳定，推荐！！！](https://inurl.top/archives/mojie/ "魔戒VPN——节点多、速度快、稳定，推荐！！！")》
+我之前也推荐过《[魔戒VPN——节点多、速度快、稳定，推荐！！！](https://inurl.link/mojie "魔戒VPN——节点多、速度快、稳定，推荐！！！")》
 
 
 
