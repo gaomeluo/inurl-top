@@ -3,8 +3,8 @@
   <div id="main" class="col-mb-12 col-8" role="main">
     <div class="archive-title">{{ .Title }}</div>
     {{ $pag := .Paginate .Pages }}
-    {{ range $pag.Pages }}
-      {{ partial "post-card.html" . }}
+    {{ range $i, $p := $pag.Pages }}
+      {{ partial "post-card.html" (dict "p" $p "i" $i) }}
     {{ end }}
     {{ partial "pagination.html" . }}
   </div>
