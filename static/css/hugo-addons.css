@@ -48,10 +48,10 @@
 html { overflow-x: hidden; }
 
 /* ===== 首页 Hero 标题「代码如诗·字字珠玑」特效 =====
-   逐字错位入场 + 流光渐变字 + 呼吸式发光（heroGlow）。
+   逐字错位入场 + 白色发光字 + 呼吸式发光（heroGlow）。
    ① 用 flex + left:0/right:0 真正居中：absolute 标题 width:100% 解析到整屏宽，
       但 left:auto 会落到居中 .container 的静态左缘，宽屏下被带偏 —— 显式锚定到视口。
-   ② 渐变与 background-clip:text 放在每个 .ch 上（父级 clip 裁不到带 transform 的子级文字）。 ===== */
+   ② 发光滤镜放在每个 .ch 上，避免父级 filter 被 transform 子级拆分导致光晕丢失。 ===== */
 .hero-title {
   left: 0;
   right: 0;
@@ -66,13 +66,8 @@ html { overflow-x: hidden; }
 }
 .hero-title .ch {
   display: inline-block;
-  background: linear-gradient(100deg,
-    #8ad7ff 0%, #c9a3ff 25%, #ffb3e6 50%, #c9a3ff 75%, #8ad7ff 100%);
-  background-size: 220% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
+  color: #fff;
+  -webkit-text-fill-color: #fff;
   opacity: 0;
   transform: translateY(18px) scale(.92);
   filter: drop-shadow(0 0 10px rgba(150, 120, 255, .55));
@@ -91,6 +86,15 @@ html { overflow-x: hidden; }
 @media (prefers-reduced-motion: reduce) {
   .hero-title { animation: none; }
   .hero-title .ch { opacity: 1; transform: none; filter: drop-shadow(0 0 10px rgba(150, 120, 255, .55)); animation: none; }
+}
+
+/* ===== 首页 Hero 背景：使用纯代码屏 bg.jpg，并始终居中裁剪 =====
+   about.jpg 下半是键盘，cover 在宽屏下只能看到顶部窄条，代码容易被裁掉；
+   bg.jpg 整屏都是代码，配合 background-position:center 任意宽度都能露出代码。 ===== */
+.page-bg.code-bg {
+  background-image: url(../img/bg.jpg);
+  background-position: center;
+  background-color: #1a1a2e;
 }
 
 /* Chroma 代码高亮（GitHub 浅色，匹配原 highlight.js default） */
