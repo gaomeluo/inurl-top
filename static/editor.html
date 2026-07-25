@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>顶级索引 · 文章后台</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="stylesheet" href="/editor.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/styles/github-dark.min.css">
+</head>
+<body>
+  <!-- 登录遮罩 -->
+  <div id="login-gate" class="gate">
+    <div class="gate-card">
+      <div class="logo">&#8984; 顶级索引</div>
+      <h1>文章管理后台</h1>
+      <p class="sub">用 GitHub 账号登录后，可直接读写仓库里的文章（content/*.md），保存即自动部署。</p>
+      <button id="btn-login" class="btn-primary">使用 GitHub 登录</button>
+      <p class="hint">登录即代表你授权本站在你的 GitHub 仓库上提交改动。</p>
+    </div>
+  </div>
+
+  <!-- 主界面 -->
+  <div id="app" class="app hidden">
+    <header class="topbar">
+      <div class="brand">&#8984; 顶级索引 <span class="muted">/ 文章后台</span></div>
+      <div class="top-actions">
+        <button id="btn-new" class="btn">＋ 新建</button>
+        <button id="btn-save" class="btn-primary" disabled>保存</button>
+        <span id="user" class="user"></span>
+        <button id="btn-logout" class="btn-ghost">退出</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="sidebar">
+        <div class="search"><input id="search" type="text" placeholder="搜索文章标题…"></div>
+        <ul id="post-list" class="post-list"></ul>
+        <div id="list-loading" class="list-loading">加载中…</div>
+      </aside>
+
+      <section class="editor-pane">
+        <div id="empty" class="empty">
+          <div class="empty-inner">
+            <div class="empty-ico">&#8984;</div>
+            <p>从左侧选择一篇文章，或点击右上角「＋ 新建」开始。</p>
+          </div>
+        </div>
+
+        <div id="editor" class="editor hidden">
+          <div class="meta-form">
+            <div class="mf-row">
+              <label class="mf-title">标题<input id="f-title" type="text" placeholder="文章标题"></label>
+              <label class="mf-slug">路径 / Slug<input id="f-slug" type="text" placeholder="archives/your-slug"></label>
+            </div>
+            <div class="mf-row">
+              <label class="mf-tags">标签<input id="f-tags" type="text" placeholder="逗号分隔，如：Python, 教程"></label>
+              <label class="mf-cats">分类<input id="f-cats" type="text" placeholder="逗号分隔"></label>
+            </div>
+            <div class="mf-row">
+              <label class="mf-cover">封面图<input id="f-cover" type="text" placeholder="/img/cover.jpg（可空）"></label>
+              <label class="mf-date">日期<input id="f-date" type="date"></label>
+            </div>
+          </div>
+
+          <div class="edit-area" id="edit-area">
+            <div class="edit-box" id="edit-box">
+              <div id="gutter" class="gutter" aria-hidden="true"></div>
+              <textarea id="body" spellcheck="false" placeholder="在此输入 Markdown 正文…"></textarea>
+            </div>
+            <div id="preview" class="preview markdown-body"></div>
+          </div>
+
+          <div class="edit-foot">
+            <span id="status" class="status"></span>
+            <div class="tabs">
+              <button class="tab active" data-tab="split">分屏</button>
+              <button class="tab" data-tab="write">仅编辑</button>
+              <button class="tab" data-tab="preview">仅预览</button>
+            </div>
+            <button id="btn-del" class="btn-danger">删除此文</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="toast" class="toast"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js"></script>
+  <script src="/editor.js"></script>
+</body>
+</html>
