@@ -22,6 +22,7 @@
   const userEl = $('user');
   const editArea = $('edit-area');
   const toastEl = $('toast');
+  const imgInput = $('img-input');
 
   const fTitle = $('f-title');
   const fSlug = $('f-slug');
@@ -51,7 +52,6 @@
 
   function onAuthMessage(e) {
     if (e.origin !== location.origin) return;
-    // Decap 握手：弹窗先发 authorizing:github，父窗回显后才跳 GitHub
     if (e.data === 'authorizing:github') {
       if (e.source) { try { e.source.postMessage('authorizing:github', e.origin); } catch (_) {} }
       return;
@@ -84,7 +84,7 @@
       const r = await gh('user');
       userEl.textContent = r.login ? '@' + r.login : '(已登录)';
     } catch (_) { userEl.textContent = '(已登录)'; }
-    try { await loadPosts(); gatherTaxonomies().catch(() => {}); }
+    try { await loadPosts(); await gatherTaxonomies(); }
     catch (err) {
       if (!getToken()) { location.reload(); return; }
       toast(err.message || '加载失败', 'err');
@@ -241,22 +241,26 @@
     renderPreview();
   }
 
-  function collectFM() {
-    // 保留原始 front matter 的全部字段，仅覆盖我们编辑的那几个
+  function collectFM(publish) {
     const fm = Object.assign({}, (current && current.fm) || {});
-    fm.title = fTitle.value.trim();
+    fm.title = fTitle.value.trim() || '无标题';
     const tags = fTags.value.split(',').map(s => s.trim()).filter(Boolean);
     if (tags.length) fm.tags = tags; else delete fm.tags;
     const cats = fCats.value.split(',').map(s => s.trim()).filter(Boolean);
     if (cats.length) fm.categories = cats; else delete fm.categories;
     if (fCover.value.trim()) fm.cover = fCover.value.trim(); else delete fm.cover;
     if (fDate.value) fm.date = fDate.value; else delete fm.date;
+    if (publish) {
+      delete fm.draft;                                   // 发布：去掉草稿标记
+      if (!fm.date) fm.date = new Date().toISOString().slice(0, 10);
+    } else {
+      fm.draft = true;                                   // 保存草稿
+    }
     return fm;
   }
 
   function currentPath() {
     let slug = fSlug.value.trim().replace(/^\/+|\.md$/g, '');
-    // 归一化：无论用户填 archives/、posts/ 还是 content/，新文章一律落到 content/posts/
     slug = slug.replace(/^(archives|posts|content)\//i, '');
     if (!slug) slug = 'untitled-' + Date.now();
     return 'content/posts/' + slug + '.md';
@@ -303,15 +307,15 @@
   }
 
   // ---------- 增 / 删 / 改 ----------
-  async function savePost() {
+  async function savePost(publish) {
     if (!current) return;
-    if (current.isNew && !fSlug.value.trim()) { toast('请填写路径 / Slug', 'err'); return; }
-    const fm = collectFM();
+    if (current.isNew && !fSlug.value.trim()) { toast('请填写发布路径 / Slug', 'err'); return; }
+    const fm = collectFM(publish);
     const raw = serializeFM(fm, bodyEl.value);
     const path = current.isNew ? currentPath() : current.path;
-    $('btn-save').disabled = true;
+    setSaving(true);
     try {
-      const payload = { message: (current.isNew ? 'create ' : 'update ') + path, content: b64encode(raw) };
+      const payload = { message: (current.isNew ? 'create ' : (publish ? 'publish ' : 'draft ')) + path, content: b64encode(raw) };
       if (!current.isNew && current.sha) payload.sha = current.sha;
       await gh('contents/' + path, { method: 'PUT', body: payload });
       current.path = path;
@@ -321,7 +325,7 @@
       fSlug.readOnly = true;
       fSlug.value = displaySlug(path);
       setStatus('saved');
-      toast('已保存，部署中…', 'ok');
+      toast(publish ? '已发布，部署中…' : '已存为草稿，部署中…', 'ok');
       const item = allPosts.find(p => p.path === path);
       if (item) { item.title = fm.title || prettyName(path); item.date = fm.date || ''; }
       else allPosts.push({ path, name: path.split('/').pop(), title: fm.title || prettyName(path), date: fm.date || '' });
@@ -330,21 +334,26 @@
     } catch (err) {
       toast(err.message || '保存失败', 'err');
     } finally {
-      $('btn-save').disabled = false;
+      setSaving(false);
     }
+  }
+
+  function setSaving(on) {
+    $('btn-savedraft').disabled = on;
+    $('btn-publish').disabled = on;
   }
 
   function newPost() {
     current = { path: null, sha: null, fm: {}, body: '', dirty: false, isNew: true };
     fTitle.value = '';
     fSlug.value = 'archives/untitled-' + Date.now().toString().slice(-6);
+    fSlug.readOnly = false;
     fTags.value = ''; fCats.value = ''; fCover.value = '';
     fDate.value = new Date().toISOString().slice(0, 10);
-    fSlug.readOnly = false;
     bodyEl.value = '';
     updateGutter(); renderPreview();
     enterEditor(); setStatus('dirty');
-    toast('新建文章，填好信息后点「保存」', 'ok');
+    toast('新建文章，填好信息后点「保存草稿」或「发布」', 'ok');
   }
 
   async function deletePost() {
@@ -426,7 +435,7 @@
     setVal(newVal, bs, bs + nb.length);
   }
   function applyCmd(cmd) {
-    if (!current) return;
+    if (!current) { toast('请先打开或新建一篇文章', 'err'); return; }
     switch (cmd) {
       case 'bold': return wrap('**', '**', '加粗文字');
       case 'italic': return wrap('*', '*', '斜体文字');
@@ -446,28 +455,68 @@
         const url = prompt('请输入图片地址（外链 URL 或 /img/xxx.jpg）：', 'https://');
         if (!url) return;
         const alt = (prompt('图片描述（alt，可留空）：', '') || '');
-        const { s, e, val } = getSel();
-        const needNl = (val.slice(0, s) && !val.slice(0, s).endsWith('\n')) ? '\n' : '';
-        const ins = needNl + '![' + alt + '](' + url + ')\n';
-        const newVal = val.slice(0, s) + ins + val.slice(e);
-        return setVal(newVal, s + ins.length, s + ins.length);
+        return insertBlock('![' + alt + '](' + url + ')\n');
       }
+      case 'upload': return uploadImage();
     }
+  }
+  // 在光标处插入（必要时补换行，使图片/块级元素独占一行）
+  function insertBlock(ins) {
+    const { s, val } = getSel();
+    const needNl = (val.slice(0, s) && !val.slice(0, s).endsWith('\n')) ? '\n' : '';
+    const newVal = val.slice(0, s) + needNl + ins + val.slice(bodyEl.selectionEnd);
+    setVal(newVal, s + needNl.length + ins.length, s + needNl.length + ins.length);
   }
   function bindToolbar() {
     document.querySelectorAll('#toolbar .tb').forEach(b => {
-      b.addEventListener('mousedown', e => e.preventDefault()); // 点按钮时不丢失选区
+      b.addEventListener('mousedown', (e) => e.preventDefault()); // 点按钮时不丢失选区
       b.addEventListener('click', () => applyCmd(b.dataset.cmd));
     });
+  }
+
+  // ---------- 本地图片上传入仓并插入 ----------
+  function fileToB64(file) {
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => { const d = r.result; resolve(d.slice(d.indexOf(',') + 1)); };
+      r.onerror = reject;
+      r.readAsDataURL(file);
+    });
+  }
+  function uploadImage() {
+    if (!current) { toast('请先打开或新建一篇文章', 'err'); return; }
+    imgInput.click();
+  }
+  async function onImagePicked() {
+    const file = imgInput.files && imgInput.files[0];
+    imgInput.value = '';
+    if (!file) return;
+    if (!/^image\//.test(file.type)) { toast('请选择图片文件', 'err'); return; }
+    toast('图片上传中…', 'ok');
+    try {
+      const b64 = await fileToB64(file);
+      const safe = (Date.now() + '-' + file.name.replace(/[^\w.\-]/g, '_')).toLowerCase();
+      const path = 'static/img/uploads/' + safe;
+      let sha;
+      try { const ex = await gh('contents/' + path); sha = ex.sha; } catch (_) {}
+      await gh('contents/' + path, { method: 'PUT', body: { message: 'upload ' + path, content: b64, sha } });
+      const url = '/img/uploads/' + safe;   // 站点同源路径，部署后即时可用（国内访问快）
+      insertBlock('![](' + url + ')\n');
+      toast('图片已上传并插入（部署后预览可见）', 'ok');
+    } catch (err) {
+      toast(err.message || '上传失败', 'err');
+    }
   }
 
   // ---------- 事件绑定 ----------
   function bind() {
     bindToolbar();
+    imgInput.addEventListener('change', onImagePicked);
     $('btn-login').addEventListener('click', login);
     $('btn-logout').addEventListener('click', logout);
     $('btn-new').addEventListener('click', newPost);
-    $('btn-save').addEventListener('click', savePost);
+    $('btn-savedraft').addEventListener('click', () => savePost(false));
+    $('btn-publish').addEventListener('click', () => savePost(true));
     $('btn-del').addEventListener('click', deletePost);
     searchInput.addEventListener('input', () => renderList(searchInput.value));
     bodyEl.addEventListener('input', () => { updateGutter(); schedulePreview(); markDirty(); });
