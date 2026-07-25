@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="zh-CN" data-theme="dark">
+<html lang="zh-CN" data-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>顶级索引 · 文章后台</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link rel="stylesheet" href="/editor.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/styles/github-dark.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/styles/github.min.css">
 </head>
 <body>
   <!-- 登录遮罩 -->
@@ -60,13 +60,27 @@
                 <span class="mf-label">发布路径</span>
                 <input id="f-slug" class="mf-input" type="text" placeholder="archives/your-slug" readonly>
               </div>
-              <div class="mf">
+              <div class="mf mf-grow">
                 <span class="mf-label">标签</span>
-                <input id="f-tags" class="mf-input" type="text" list="tag-list" placeholder="可输入新标签（逗号分隔）">
+                <div class="combo" id="combo-tags">
+                  <div class="combo-box">
+                    <span class="chips" id="chips-tags"></span>
+                    <input id="f-tags-input" class="combo-input" type="text" placeholder="选择或输入标签，回车添加" autocomplete="off">
+                  </div>
+                  <input id="f-tags" type="hidden">
+                  <ul class="combo-menu" id="menu-tags" hidden></ul>
+                </div>
               </div>
-              <div class="mf">
+              <div class="mf mf-grow">
                 <span class="mf-label">分类</span>
-                <input id="f-cats" class="mf-input" type="text" list="cat-list" placeholder="选择或输入">
+                <div class="combo" id="combo-cats">
+                  <div class="combo-box">
+                    <span class="chips" id="chips-cats"></span>
+                    <input id="f-cats-input" class="combo-input" type="text" placeholder="选择或输入分类，回车添加" autocomplete="off">
+                  </div>
+                  <input id="f-cats" type="hidden">
+                  <ul class="combo-menu" id="menu-cats" hidden></ul>
+                </div>
               </div>
               <div class="mf mf-cover">
                 <span class="mf-label">封面图</span>
@@ -117,8 +131,6 @@
       </section>
     </main>
 
-    <datalist id="cat-list"></datalist>
-    <datalist id="tag-list"></datalist>
     <input id="img-input" type="file" accept="image/*" hidden>
     <div id="toast" class="toast"></div>
   </div>

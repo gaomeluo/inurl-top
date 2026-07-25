@@ -34,6 +34,14 @@
   let current = null;     // { path, sha, fm, body, dirty, isNew }
   let allPosts = [];
 
+  // 分类 / 标签：中文显示 -> 存储 slug（Hugo 需要 slug）
+  let catMap = {};   // { slug: 中文名 }
+  let tagMap = {};   // { tag: 显示名 }
+  const comboState = {
+    tags: { input: 'f-tags', visible: 'f-tags-input', chips: 'chips-tags', menu: 'menu-tags' },
+    cats: { input: 'f-cats', visible: 'f-cats-input', chips: 'chips-cats', menu: 'menu-cats' },
+  };
+
   // ---------- 工具 ----------
   function toast(msg, type) {
     toastEl.textContent = msg;
@@ -234,6 +242,7 @@
     fSlug.readOnly = !current.isNew;
     fTags.value = Array.isArray(fm.tags) ? fm.tags.join(', ') : (fm.tags || '');
     fCats.value = Array.isArray(fm.categories) ? fm.categories.join(', ') : (fm.categories || '');
+    renderChips('tags'); renderChips('cats');
     fCover.value = fm.cover || '';
     fDate.value = (fm.date || '').slice(0, 10);
     bodyEl.value = body;
@@ -349,6 +358,7 @@
     fSlug.value = 'archives/untitled-' + Date.now().toString().slice(-6);
     fSlug.readOnly = false;
     fTags.value = ''; fCats.value = ''; fCover.value = '';
+    renderChips('tags'); renderChips('cats');
     fDate.value = new Date().toISOString().slice(0, 10);
     bodyEl.value = '';
     updateGutter(); renderPreview();
@@ -381,23 +391,131 @@
     return rel;
   }
 
-  // ---------- 分类 / 标签下拉数据 ----------
-  let catSet = new Set(), tagSet = new Set();
-  function fillDatalist(id, arr) {
-    const dl = $(id); if (!dl) return;
-    dl.innerHTML = arr.map(v => '<option value="' + escapeHtml(v) + '">').join('');
+  // ---------- 分类 / 标签下拉数据（中文显示，存储 slug） ----------
+  async function fetchTitle(path) {
+    try {
+      const d = await gh('contents/' + path);
+      if (d && d.content) return parseFM(b64decode(d.content)).fm.title || '';
+    } catch (_) {}
+    return '';
   }
   async function gatherTaxonomies() {
+    catMap = {}; tagMap = {};
+    // 1) 从已有文章汇总
     allPosts.forEach(p => {
-      (p.cats || []).forEach(c => c && catSet.add(c));
-      (p.tags || []).forEach(t => t && tagSet.add(t));
+      (p.cats || []).forEach(c => { if (c) catMap[c] = catMap[c] || c; });
+      (p.tags || []).forEach(t => { if (t) tagMap[t] = tagMap[t] || t; });
     });
+    // 2) 从分类目录的 _index.md 取中文名
     try {
       const items = await gh('contents/content/categories');
-      if (Array.isArray(items)) items.filter(i => i.type === 'dir').forEach(i => catSet.add(i.name));
+      if (Array.isArray(items)) {
+        const dirs = items.filter(i => i.type === 'dir');
+        await Promise.all(dirs.map(async (d) => {
+          const title = await fetchTitle('content/categories/' + d.name + '/_index.md');
+          if (title) catMap[d.name] = title; else if (!catMap[d.name]) catMap[d.name] = d.name;
+        }));
+      }
     } catch (_) {}
-    fillDatalist('cat-list', [...catSet].sort());
-    fillDatalist('tag-list', [...tagSet].sort());
+    // 3) 兜底已知中文名（防止接口异常）
+    const fallback = { fuli: '福利', yuanquan: '猿圈' };
+    Object.keys(fallback).forEach(s => { if (!catMap[s]) catMap[s] = fallback[s]; });
+    // 4) 可选：标签目录中文名
+    try {
+      const items = await gh('contents/content/tags');
+      if (Array.isArray(items)) {
+        const dirs = items.filter(i => i.type === 'dir');
+        await Promise.all(dirs.map(async (d) => {
+          const title = await fetchTitle('content/tags/' + d.name + '/_index.md');
+          if (title) tagMap[d.name] = title; else if (!tagMap[d.name]) tagMap[d.name] = d.name;
+        }));
+      }
+    } catch (_) {}
+  }
+  function catOptions() { return Object.keys(catMap).map(k => ({ value: k, label: catMap[k] })); }
+  function tagOptions() { return Object.keys(tagMap).map(k => ({ value: k, label: tagMap[k] })); }
+
+  // ---------- 芯片下拉（标签 / 分类） ----------
+  function renderChips(kind) {
+    const st = comboState[kind];
+    const box = $(st.chips);
+    if (!box) return;
+    const map = kind === 'tags' ? tagMap : catMap;
+    const vals = ($(st.input).value || '').split(',').map(s => s.trim()).filter(Boolean);
+    box.innerHTML = vals.map(v =>
+      '<span class="chip">' + escapeHtml(map[v] || v) +
+      '<button type="button" class="chip-x" data-val="' + escapeHtml(v) + '" aria-label="移除">×</button></span>'
+    ).join('');
+  }
+  function addToken(kind, val) {
+    val = (val || '').trim(); if (!val) return;
+    const st = comboState[kind];
+    const map = kind === 'tags' ? tagMap : catMap;
+    if (!map[val]) map[val] = val;
+    const cur = ($(st.input).value || '').split(',').map(s => s.trim()).filter(Boolean);
+    if (!cur.includes(val)) cur.push(val);
+    $(st.input).value = cur.join(', ');
+    $(st.visible).value = '';
+    renderChips(kind);
+    if (current) markDirty();
+    $(st.visible).focus();
+  }
+  function removeToken(kind, val) {
+    const st = comboState[kind];
+    const cur = ($(st.input).value || '').split(',').map(s => s.trim()).filter(Boolean).filter(x => x !== val);
+    $(st.input).value = cur.join(', ');
+    renderChips(kind);
+    if (current) markDirty();
+  }
+  function openMenu(kind) {
+    const st = comboState[kind];
+    const menu = $(st.menu);
+    const q = ($(st.visible).value || '').trim().toLowerCase();
+    const opts = (kind === 'tags' ? tagOptions() : catOptions())
+      .filter(o => !q || o.label.toLowerCase().includes(q) || o.value.toLowerCase().includes(q));
+    menu.innerHTML = opts.length
+      ? opts.map(o =>
+          '<li class="combo-opt" data-val="' + escapeHtml(o.value) + '">' +
+          '<span class="combo-opt-label">' + escapeHtml(o.label) + '</span>' +
+          (o.value !== o.label ? '<span class="combo-opt-sub">' + escapeHtml(o.value) + '</span>' : '') +
+          '</li>'
+        ).join('')
+      : '<li class="combo-empty">无匹配，回车直接添加</li>';
+    menu.hidden = false;
+    $(st.visible).setAttribute('aria-expanded', 'true');
+  }
+  function closeMenu(kind) {
+    const st = comboState[kind];
+    $(st.menu).hidden = true;
+    $(st.visible).setAttribute('aria-expanded', 'false');
+  }
+  function bindCombos() {
+    ['tags', 'cats'].forEach((kind) => {
+      const st = comboState[kind];
+      const vin = $(st.visible);
+      const menu = $(st.menu);
+      const box = $(st.chips);
+      vin.addEventListener('focus', () => openMenu(kind));
+      vin.addEventListener('input', () => openMenu(kind));
+      vin.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addToken(kind, vin.value); }
+        else if (e.key === 'Backspace' && !vin.value) {
+          const cur = ($(st.input).value || '').split(',').map(s => s.trim()).filter(Boolean);
+          if (cur.length) { cur.pop(); $(st.input).value = cur.join(', '); renderChips(kind); if (current) markDirty(); }
+        } else if (e.key === 'Escape') { closeMenu(kind); }
+      });
+      menu.addEventListener('click', (e) => {
+        const li = e.target.closest('.combo-opt'); if (!li) return;
+        addToken(kind, li.dataset.val); closeMenu(kind);
+      });
+      box.addEventListener('click', (e) => {
+        const b = e.target.closest('.chip-x'); if (!b) return;
+        removeToken(kind, b.dataset.val);
+      });
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('#combo-' + kind)) closeMenu(kind);
+      });
+    });
   }
 
   // ---------- 富文本工具栏（免写 Markdown） ----------
@@ -511,6 +629,7 @@
   // ---------- 事件绑定 ----------
   function bind() {
     bindToolbar();
+    bindCombos();
     imgInput.addEventListener('change', onImagePicked);
     $('btn-login').addEventListener('click', login);
     $('btn-logout').addEventListener('click', logout);
