@@ -41,8 +41,11 @@
 
 /* ===== 修复：首页 hero 锚定到视口的全宽元素（.page-bg/.page-title）
    在出现竖向滚动条后会略超内容区，导致底部出现横向滚动条。
-   裁剪 html/body 横向溢出即可（竖向滚动与 full-bleed 横幅不受影响）。 ===== */
-html, body { overflow-x: hidden; }
+   只裁剪 html 的横向溢出即可。
+   ⚠️ 绝不能加在 body 上：body 一旦 overflow-x:hidden，会变成独立滚动容器，
+   既让网站右侧多一条竖拉条，又会切断 window 滚动 —— 回顶部按钮(returnTop
+   依赖 window.scrollY 判断显现与滚动)随之失效。 ===== */
+html { overflow-x: hidden; }
 
 /* ===== 首页 Hero 标题「代码如诗·字字珠玑」特效 =====
    流光渐变（background-clip:text + shimmer）+ 逐字错位入场 + 微光晕。
@@ -51,23 +54,22 @@ html, body { overflow-x: hidden; }
   font-weight: 700;
   font-size: clamp(1.7rem, 4.6vw, 2.6rem);
   letter-spacing: .12em;
+  filter: drop-shadow(0 2px 16px rgba(150, 120, 255, .45));
+}
+.hero-title .ch {
+  display: inline-block;
   background: linear-gradient(100deg,
     #8ad7ff 0%, #c9a3ff 25%, #ffb3e6 50%, #c9a3ff 75%, #8ad7ff 100%);
   background-size: 220% auto;
   -webkit-background-clip: text;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
   color: transparent;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 2px 16px rgba(150, 120, 255, .45));
-  animation: heroShimmer 6s linear infinite;
-}
-.hero-title .ch {
-  display: inline-block;
-  -webkit-text-fill-color: transparent;
   opacity: 0;
   transform: translateY(18px) scale(.92);
-  animation: heroRise .7s cubic-bezier(.16, 1, .3, 1) forwards;
-  animation-delay: calc(var(--i) * .09s + .25s);
+  animation: heroRise .7s cubic-bezier(.16, 1, .3, 1) forwards,
+             heroShimmer 6s linear infinite;
+  animation-delay: calc(var(--i) * .09s + .25s), 0s;
 }
 .hero-title .dot { margin: 0 .06em; }
 @keyframes heroShimmer {
