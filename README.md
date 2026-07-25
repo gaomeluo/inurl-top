@@ -4,7 +4,7 @@
 
 - **静态生成**：[Hugo](https://gohugo.io/)（`hugo.exe --minify` 构建）
 - **部署**：Cloudflare Pages（仓库 `gaomeluo/inurl-top`，分支 `main`，push 即自动构建部署）
-- **后台 CMS**：[Decap CMS](https://decapcms.org/) 3.3.3，访问 `https://inurl.top/admin/`
+- **文章后台**：自研深色风编辑界面（纯静态 `static/editor.html`，访问 `https://inurl.top/editor.html`），完整 CRUD + 实时 Markdown 预览；登录与读写复用 Cloudflare Functions 的 `/auth` 与 `/api/v3`（即原 Decap 那套 OAuth 基建）
 - **评论**：Giscus（按文章 pathname 绑定 GitHub Discussions）
 
 ---
@@ -13,9 +13,9 @@
 
 ```
 .
-├── static/admin/            # Decap CMS 前端
-│   ├── index.html           # 加载 decap-cms 3.3.3
-│   └── config.yml          # ★ 后台配置（见下）
+├── static/editor.html      # 自研文章后台（纯静态，访问 /editor.html）
+│   ├── editor.css          # 深色程序员风样式
+│   └── editor.js          # /auth 登录握手 + /api/v3 CRUD + front matter 解析
 ├── functions/              # ★ Cloudflare Pages Functions（自托管 OAuth + URL 重写）
 │   ├── auth.js                       # GET /auth         —— 弹窗握手页
 │   ├── auth/callback.js             # GET /auth/callback —— 换 token 并回传
@@ -25,69 +25,53 @@
 ├── scripts/
 │   ├── migrate_comments_to_giscus.py   # 旧 Typecho 评论 → Giscus Discussions
 │   └── typecho_to_hugo.py             # SQL 解析工具（被上面引用）
-├── content/posts/          # 文章（Decap 可直接编辑）
+├── content/                 # 文章（自研后台可直接编辑，见上）
 └── hugo.toml
 ```
 
 ---
 
-## Decap CMS 后台登录（Cloudflare Pages 自托管 OAuth）
+## 文章后台（自研，替代 Decap CMS）
 
-> ⚠️ **前置结论**：Decap 的 GitHub 登录**不能**用 Netlify 内置代理（`api.netlify.com/auth`）——
-> 那个代理只对**部署在 Netlify 上的站点**有效，对 Cloudflare Pages 站点天生返回 404。
-> 在 Cloudflare 上必须**自托管 OAuth 函数**（下面的 `functions/`）。
+> 原克隆站用 Decap CMS 3.3.3 做后台；现改为**自研的纯静态后台**（`static/editor.html`），
+> 视觉更贴合程序员主题，且完整 CRUD（新建 / 编辑 / 删除）+ 实时 Markdown 预览。
+> **登录与 GitHub 读写复用下面 `functions/` 的那套 OAuth 基建**，无需额外部署。
 
-### 最终正确配置（`static/admin/config.yml` 的 backend 段）
+### 入口与权限
+- 访问 `https://inurl.top/editor.html` 打开后台。
+- 登录用 GitHub OAuth（走 `/auth` 弹窗握手），登录后拿到 `access_token` 存浏览器 `localStorage`，
+  之后所有读写都带这个 token 调 `/api/v3`（GitHub API 反代）。
+- 登录即代表授权本站在你的 GitHub 仓库（`gaomeluo/inurl.top`）`main` 分支提交改动；
+  **保存 = 一次 commit，Cloudflare 自动构建部署**，通常 1–2 分钟生效。
 
-```yaml
-backend:
-  name: github
-  repo: gaomeluo/inurl-top
-  branch: main
-  app_id: Ov23liJ4fvPrfXbIBSdq        # GitHub OAuth App 的 Client ID
-  base_url: https://inurl.top           # 必须是你自己的域名
-  auth_endpoint: /auth                  # 指向 functions/auth.js
-```
-
-- `base_url` 必须设成自己的域名（原因见「坑 4」）。
-- `auth_endpoint: /auth`（**相对路径**，不要写完整 URL —— 见「坑 2」）。
-
-### Cloudflare Pages 环境变量（Production）
-
-项目 `inurl-top` → Settings → Environment variables → 选 **Production** 添加：
-
-```
-GITHUB_CLIENT_ID     = Ov23liJ4fvPrfXbIBSdq
-GITHUB_CLIENT_SECRET = 你的 GitHub OAuth App 密钥
-```
-
-> 若函数代码里已硬编码兜底 `client_id`（见 `functions/auth.js`），`GITHUB_CLIENT_ID` 可省略；
-> 但 `GITHUB_CLIENT_SECRET` **必须有**，否则无法用 code 换 token。
-
-### GitHub OAuth App 设置
-
-GitHub → 头像 → Settings → **Developer settings** → **OAuth Apps** → 对应 App：
-
-- **Client ID** = `Ov23liJ4fvPrfXbIBSdq`
-- **Authorization callback URL** = `https://inurl.top/auth/callback`   ← 必须是这个
-- （Client secret 在 Cloudflare 环境变量里用，不要写进仓库）
-
-### 三个 Functions 文件（已就位，勿动逻辑）
+### 三个 Functions 文件（后台共用，勿动逻辑）
 
 | 文件 | 路由 | 作用 |
 |------|------|------|
 | `functions/auth.js` | `GET /auth` | 弹窗内先 `postMessage('authorizing:github')` 与父窗握手，收到回显后再跳 GitHub 授权页 |
 | `functions/auth/callback.js` | `GET /auth/callback` | GitHub 带着 `code` 回来 → 用 `client_secret` 换 `access_token` → `opener.postMessage('authorization:github:success:...')` 把 token 发回父窗 |
-| `functions/api/v3/[[path]].js` | `/api/v3/*` | 把 GitHub API 请求反代到 `https://api.github.com/*`（**必配**，见「坑 4」） |
+| `functions/api/v3/[[path]].js` | `/api/v3/*` | 把 GitHub API 请求反代到 `https://api.github.com/*`（透传 Authorization） |
 
-### 登录流程（Decap 3.3.3 = 弹窗 + postMessage 握手，不是 hash 重定向）
+### 登录流程（弹窗 + postMessage 握手，不是 hash 重定向）
 
-1. 打开 `https://inurl.top/admin/` → 点 **Login with GitHub**
+1. 打开 `https://inurl.top/editor.html` → 点 **使用 GitHub 登录**
 2. 浏览器**弹窗**打开 `https://inurl.top/auth?provider=github&...`
 3. `auth.js` 在弹窗内与父窗口完成 `authorizing:github` 握手 → 弹窗跳到 GitHub 授权页
 4. 你同意授权 → GitHub 回跳 `https://inurl.top/auth/callback?code=...&state=...`
 5. `callback.js` 换到 `access_token` → 通过 `postMessage` 把 token 发回父窗 → 关闭弹窗
-6. 父窗口收到 token → Decap 加载成功，进入后台
+6. 父窗口（自研后台）收到 token → 存入 `localStorage`，加载文章列表，进入后台
+
+### 后台功能
+- **左侧文章列表**：自动列举 `content/` 下所有 `.md`（含子目录如 `content/archives/`），按日期倒序；顶部搜索框按标题 / 文件名过滤。
+- **右侧编辑器**：
+  - 上半 `front matter` 表单：标题、路径/Slug、标签、分类、封面图、日期；
+  - 下半 Markdown 正文：带**行号 gutter** 的等宽编辑区（支持 `Tab` 缩进），与**实时预览**分屏 / 单栏切换；
+  - 预览用 `marked` + `highlight.js`（CDN 引入，离线时仅提示、不影响编辑保存）。
+- **保存 / 新建 / 删除**：
+  - 保存 → `PUT /repos/.../contents/{path}`（更新带 `sha`，新建不带）；
+  - 删除 → `DELETE`，有二次确认；
+  - 所有改动直接进 `main` 并触发部署。
+- **未保存提醒**：有改动但未保存时，离开页面会弹浏览器原生确认。
 
 ---
 
@@ -203,6 +187,18 @@ GitHub → 头像 → Settings → **Developer settings** → **OAuth Apps** →
   `bg.jpg` 整屏都是代码，配合居中裁剪，**任意宽度都能露出代码**；另加暗色兜底 `background-color: #1a1a2e`（图片加载前不会是灰底）。
   - 经验：hero 背景若用 `cover` + 固定矮高，选「主体铺满整图」的图片（如纯代码屏），比「局部有内容」的照片（如带键盘的笔记本）鲁棒得多。
 
+### 坑 13：用自研静态后台替代 Decap CMS
+- **背景**：原克隆站用 Decap CMS 3.3.3 做后台，但其默认 UI（Bootstrap 风）与本站程序员主题不搭，
+  且每次改完都要走 Decap 那套笨重加载。改用**自研纯静态后台** `static/editor.html`（深色程序员风）。
+- **保留的基建**：Decap 登录跑通的那套 Cloudflare Functions（`/auth`、`/auth/callback`、`/api/v3`）
+  **原样复用**——自研后台只是换了前端，登录握手与 GitHub API 反代逻辑一行没动。
+- **卸载 Decap**：直接 `git rm -r static/admin`（config.yml + index.html），布局里本就无引用，删目录即干净；
+  线上旧的 `/admin/` 在下次部署时被新构建产物覆盖掉。
+- **好处**：① 视觉统一为深色程序员风；② 完整 CRUD + 行号 + 实时预览；
+  ③ 零框架依赖（原生 JS），加载快；④ 不依赖 Decap 版本演进（避免再踩 3.3.3 的握手坑）。
+- **注意**：原 Decap 自托管 OAuth 的坑 1–6 本质是「Cloudflare 自托管 OAuth」的通用坑，
+  自研后台**同样适用**（登录机制完全一致），排查时仍按坑 1–6 对照；只是不再有 Decap 版本差异问题。
+
 ---
 
 ## 其他运维命令
@@ -224,5 +220,5 @@ git add -A && git commit -m "..." && git push origin main
 
 ## 备注
 
-- 本 README 记录的 Decap 自托管 OAuth 方案（弹窗 + postMessage 握手 + `/api/v3` 反代）是针对 **Decap 3.3.3 + Cloudflare Pages** 验证通过的版本。升级 Decap 大版本时，建议重新核对其 GitHub 鉴权实现（不同版本握手协议可能变化）。
-- 已沉淀为可复用 Skill：`decap-cloudflare-oauth`（用户级 skills 目录）。
+- 本 README 记录的「Cloudflare 自托管 OAuth」方案（弹窗 + postMessage 握手 + `/api/v3` 反代）是针对 **Cloudflare Pages** 验证通过的版本，现由**自研文章后台**（`static/editor.html`）复用（原 Decap CMS 已于 2026-07-25 卸载，改用自研后台）。
+- 若未来要恢复 Decap CMS，可参考已沉淀的 Skill：`decap-cloudflare-oauth`（用户级 skills 目录）。
