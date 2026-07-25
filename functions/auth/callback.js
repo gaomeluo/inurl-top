@@ -1,11 +1,10 @@
-// Decap CMS GitHub 鉴权回调（自托管）
+// 自研文章后台 GitHub 鉴权回调（自托管）
 // 路由：Cloudflare Pages Functions -> GET /auth/callback
 //
 // GitHub 在用户授权后带着 ?code=...&state=... 回到这里，
 // 用 client_secret 换取 access_token，再把 token 通过 postMessage 发回父窗口
-// （Decap 的 NetlifyAuthenticator.authorizeCallback 正在等这条消息，
+// （static/editor.js 的 onAuthMessage 正在等这条消息，
 //   格式必须是 'authorization:github:success:' + JSON.stringify({ token })）。
-// 父窗口收到后才会真正完成登录 —— 之前用 302 重定向带 hash 是错的，3.3.3 不读 hash。
 export async function onRequest(context) {
   const { request, env } = context;
   const url = new URL(request.url);

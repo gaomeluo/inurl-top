@@ -108,7 +108,12 @@
     const headers = { 'Accept': 'application/vnd.github+json' };
     headers['Authorization'] = 'token ' + token;
     if (opts.body) headers['Content-Type'] = 'application/json';
-    const res = await fetch('/api/v3/repos/' + REPO + '/' + path, {
+    // 仓库内接口走 /repos/{owner}/{repo}/...；
+    // 取当前登录用户走 /user（不带仓库前缀，否则会变成无效路径）
+    const base = path.startsWith('user')
+      ? '/api/v3/'
+      : '/api/v3/repos/' + REPO + '/';
+    const res = await fetch(base + path, {
       method: opts.method || 'GET',
       headers,
       body: opts.body ? JSON.stringify(opts.body) : undefined,

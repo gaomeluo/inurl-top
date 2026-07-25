@@ -45,7 +45,7 @@ summaryLength = 60
     guessSyntax = true
     style = "github"
 
-# ===== 顶部菜单（后续可在 Pages CMS 维护，或在此手写）=====
+# ===== 顶部菜单（手写维护）=====
 [menus]
   [[menus.main]]
     name = "首页"

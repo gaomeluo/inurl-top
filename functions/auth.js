@@ -1,11 +1,10 @@
-// Decap CMS GitHub 鉴权（自托管，使登录全程走 inurl.top 域名）
+// 自研文章后台 GitHub 鉴权（自托管，使登录全程走 inurl.top 域名）
 // 路由：Cloudflare Pages Functions -> GET /auth
 //
-// ⚠️ 关键：Decap 3.3.3 的 GitHub 登录是「弹窗 + postMessage 握手」流程（NetlifyAuthenticator），
-// 不是老版（2.x）的 URL hash 重定向。/auth 在弹窗内必须按顺序做：
+// 登录流程是「弹窗 + postMessage 握手」：
 //   1) 向父窗口 postMessage('authorizing:github')
 //   2) 收到父窗口回显（同样 'authorizing:github'）后，再把弹窗跳到 GitHub 授权页
-// 否则父窗口的 NetlifyAuthenticator 永远收不到 token，登录会无限循环。
+// 否则父窗口（static/editor.js 的 onAuthMessage）收不到握手，登录会卡住。
 //
 // 需要 Cloudflare Pages 环境变量（项目设置 -> Environment variables，Production）：
 //   GITHUB_CLIENT_ID     = Ov23liJ4fvPrfXbIBSdq
