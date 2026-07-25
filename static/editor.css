@@ -150,6 +150,27 @@ body {
   transition: border-color .2s, box-shadow .2s;
 }
 .meta-form input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+.meta-form small.mf-hint { font-family: var(--sans); font-size: 11px; color: #6e7681; margin-top: 2px; }
+#f-slug:read-only { background: var(--bg-2); color: var(--text-muted); cursor: not-allowed; }
+
+/* ===== 富文本工具栏 ===== */
+.toolbar {
+  flex: 0 0 auto; display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  padding: 10px 20px; background: var(--bg-2);
+  border-bottom: 1px solid var(--border-2);
+}
+.tb {
+  font-family: var(--sans); font-size: 13px; font-weight: 600;
+  min-width: 36px; height: 32px; padding: 0 11px;
+  border: 1px solid var(--border); background: var(--bg-3); color: var(--text);
+  border-radius: var(--radius-sm); cursor: pointer; line-height: 1;
+  transition: background .15s, border-color .15s, color .15s, transform .1s, box-shadow .15s;
+}
+.tb:hover { background: #262d36; border-color: #3d444d; }
+.tb:active { transform: translateY(1px); }
+.tb b, .tb i { font-style: normal; }
+.tb i { font-style: italic; }
+.tb-sep { width: 1px; height: 20px; background: var(--border-2); margin: 0 2px; }
 
 .edit-area { flex: 1 1 auto; display: flex; min-height: 0; }
 .edit-box { flex: 1 1 50%; display: flex; min-width: 0; border-right: 1px solid var(--border-2); }

@@ -48,14 +48,28 @@
         </div>
 
         <div id="editor" class="editor hidden">
+          <div class="toolbar" id="toolbar">
+            <button class="tb" data-cmd="bold" title="加粗（Ctrl+B）"><b>加粗</b></button>
+            <button class="tb" data-cmd="italic" title="斜体（Ctrl+I）"><i>斜体</i></button>
+            <button class="tb" data-cmd="h2" title="二级标题">H</button>
+            <span class="tb-sep"></span>
+            <button class="tb" data-cmd="link" title="插入超链接（文字加超链接）">链接</button>
+            <button class="tb" data-cmd="image" title="插入图片（外链 URL 或 /img/ 路径，配图）">图片</button>
+            <span class="tb-sep"></span>
+            <button class="tb" data-cmd="quote" title="引用块">引用</button>
+            <button class="tb" data-cmd="code" title="行内代码">&lt;/&gt;</button>
+            <button class="tb" data-cmd="ul" title="无序列表">列表</button>
+            <button class="tb" data-cmd="ol" title="有序列表">有序</button>
+            <button class="tb" data-cmd="codeblock" title="代码块">{ }</button>
+          </div>
           <div class="meta-form">
             <div class="mf-row">
               <label class="mf-title">标题<input id="f-title" type="text" placeholder="文章标题"></label>
-              <label class="mf-slug">路径 / Slug<input id="f-slug" type="text" placeholder="archives/your-slug"></label>
+              <label class="mf-slug">发布路径<small class="mf-hint">编辑已有文章时为只读</small><input id="f-slug" type="text" placeholder="archives/your-slug"></label>
             </div>
             <div class="mf-row">
-              <label class="mf-tags">标签<input id="f-tags" type="text" placeholder="逗号分隔，如：Python, 教程"></label>
-              <label class="mf-cats">分类<input id="f-cats" type="text" placeholder="逗号分隔"></label>
+              <label class="mf-tags">标签<small class="mf-hint">可选已有，也可直接输入新标签（逗号分隔）</small><input id="f-tags" type="text" list="tag-list" placeholder="如：Python, 教程"></label>
+              <label class="mf-cats">分类<small class="mf-hint">从下拉选择本站已有分类</small><input id="f-cats" type="text" list="cat-list" placeholder="如：福利"></label>
             </div>
             <div class="mf-row">
               <label class="mf-cover">封面图<input id="f-cover" type="text" placeholder="/img/cover.jpg（可空）"></label>
@@ -84,6 +98,8 @@
       </section>
     </main>
 
+    <datalist id="cat-list"></datalist>
+    <datalist id="tag-list"></datalist>
     <div id="toast" class="toast"></div>
   </div>
 

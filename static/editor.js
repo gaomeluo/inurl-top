@@ -84,7 +84,7 @@
       const r = await gh('user');
       userEl.textContent = r.login ? '@' + r.login : '(已登录)';
     } catch (_) { userEl.textContent = '(已登录)'; }
-    try { await loadPosts(); }
+    try { await loadPosts(); gatherTaxonomies().catch(() => {}); }
     catch (err) {
       if (!getToken()) { location.reload(); return; }
       toast(err.message || '加载失败', 'err');
@@ -139,6 +139,8 @@
             const fm = parseFM(raw).fm;
             p.title = (fm.title && String(fm.title)) || prettyName(p.name);
             p.date = fm.date || '';
+            p.cats = Array.isArray(fm.categories) ? fm.categories : (fm.categories ? [fm.categories] : []);
+            p.tags = Array.isArray(fm.tags) ? fm.tags : (fm.tags ? [fm.tags] : []);
           }
         } catch (_) { p.title = prettyName(p.name); }
       }));
@@ -167,7 +169,7 @@
       li.className = 'post-item' + (current && current.path === p.path ? ' active' : '');
       li.innerHTML = '<div class="post-name"></div><div class="post-meta"></div>';
       li.querySelector('.post-name').textContent = p.title;
-      li.querySelector('.post-meta').textContent = p.path;
+      li.querySelector('.post-meta').textContent = displaySlug(p.path);
       li.addEventListener('click', () => openPost(p));
       postList.appendChild(li);
     }
@@ -228,8 +230,8 @@
 
   function fillForm(fm, body) {
     fTitle.value = fm.title || '';
-    const m = (current && current.path || '').match(/^content\/(.+)\.md$/i);
-    fSlug.value = m ? m[1] : '';
+    fSlug.value = displaySlug(current && current.path || '');
+    fSlug.readOnly = !current.isNew;
     fTags.value = Array.isArray(fm.tags) ? fm.tags.join(', ') : (fm.tags || '');
     fCats.value = Array.isArray(fm.categories) ? fm.categories.join(', ') : (fm.categories || '');
     fCover.value = fm.cover || '';
@@ -254,8 +256,10 @@
 
   function currentPath() {
     let slug = fSlug.value.trim().replace(/^\/+|\.md$/g, '');
-    if (!slug) slug = 'archives/untitled-' + Date.now();
-    return 'content/' + slug + '.md';
+    // 归一化：无论用户填 archives/、posts/ 还是 content/，新文章一律落到 content/posts/
+    slug = slug.replace(/^(archives|posts|content)\//i, '');
+    if (!slug) slug = 'untitled-' + Date.now();
+    return 'content/posts/' + slug + '.md';
   }
 
   function enterEditor() { emptyEl.classList.add('hidden'); editorEl.classList.remove('hidden'); }
@@ -314,6 +318,8 @@
       current.fm = fm;
       current.isNew = false;
       current.dirty = false;
+      fSlug.readOnly = true;
+      fSlug.value = displaySlug(path);
       setStatus('saved');
       toast('已保存，部署中…', 'ok');
       const item = allPosts.find(p => p.path === path);
@@ -334,6 +340,7 @@
     fSlug.value = 'archives/untitled-' + Date.now().toString().slice(-6);
     fTags.value = ''; fCats.value = ''; fCover.value = '';
     fDate.value = new Date().toISOString().slice(0, 10);
+    fSlug.readOnly = false;
     bodyEl.value = '';
     updateGutter(); renderPreview();
     enterEditor(); setStatus('dirty');
@@ -356,8 +363,107 @@
     }
   }
 
+  // ---------- 路径显示（发布路径） ----------
+  function displaySlug(path) {
+    const m = (path || '').match(/^content\/(.+)\.md$/i);
+    if (!m) return '';
+    let rel = m[1];
+    if (rel.startsWith('posts/')) rel = 'archives/' + rel.slice(6);
+    return rel;
+  }
+
+  // ---------- 分类 / 标签下拉数据 ----------
+  let catSet = new Set(), tagSet = new Set();
+  function fillDatalist(id, arr) {
+    const dl = $(id); if (!dl) return;
+    dl.innerHTML = arr.map(v => '<option value="' + escapeHtml(v) + '">').join('');
+  }
+  async function gatherTaxonomies() {
+    allPosts.forEach(p => {
+      (p.cats || []).forEach(c => c && catSet.add(c));
+      (p.tags || []).forEach(t => t && tagSet.add(t));
+    });
+    try {
+      const items = await gh('contents/content/categories');
+      if (Array.isArray(items)) items.filter(i => i.type === 'dir').forEach(i => catSet.add(i.name));
+    } catch (_) {}
+    fillDatalist('cat-list', [...catSet].sort());
+    fillDatalist('tag-list', [...tagSet].sort());
+  }
+
+  // ---------- 富文本工具栏（免写 Markdown） ----------
+  function getSel() {
+    return {
+      s: bodyEl.selectionStart, e: bodyEl.selectionEnd,
+      sel: bodyEl.value.substring(bodyEl.selectionStart, bodyEl.selectionEnd),
+      val: bodyEl.value,
+    };
+  }
+  function setVal(newVal, a, b) {
+    bodyEl.value = newVal;
+    bodyEl.selectionStart = a; bodyEl.selectionEnd = b;
+    bodyEl.focus();
+    updateGutter(); schedulePreview(); markDirty();
+  }
+  function wrap(before, after, ph) {
+    const { s, e, sel, val } = getSel();
+    const text = sel || ph;
+    const newVal = val.slice(0, s) + before + text + after + val.slice(e);
+    setVal(newVal, s + before.length, s + before.length + text.length);
+  }
+  function prefixLines(prefix, ph) {
+    const { s, e, sel, val } = getSel();
+    if (!sel) {
+      const ls = val.lastIndexOf('\n', s - 1) + 1;
+      const newVal = val.slice(0, ls) + prefix + ph + val.slice(ls);
+      return setVal(newVal, ls + prefix.length, ls + prefix.length + ph.length);
+    }
+    const bs = val.lastIndexOf('\n', s - 1) + 1;
+    let be = val.indexOf('\n', e); if (be === -1) be = val.length;
+    const block = val.slice(bs, be);
+    const nb = block.split('\n').map(l => prefix + l).join('\n');
+    const newVal = val.slice(0, bs) + nb + val.slice(be);
+    setVal(newVal, bs, bs + nb.length);
+  }
+  function applyCmd(cmd) {
+    if (!current) return;
+    switch (cmd) {
+      case 'bold': return wrap('**', '**', '加粗文字');
+      case 'italic': return wrap('*', '*', '斜体文字');
+      case 'code': return wrap('`', '`', '代码');
+      case 'h2': return prefixLines('# ', '标题');
+      case 'quote': return prefixLines('> ', '引用内容');
+      case 'ul': return prefixLines('- ', '列表项');
+      case 'ol': return prefixLines('1. ', '列表项');
+      case 'codeblock': return wrap('```\n', '\n```', '代码块');
+      case 'link': {
+        const url = prompt('请输入链接地址（URL）：', 'https://');
+        if (!url) return;
+        const text = (getSel().sel) || (prompt('链接显示文字：', '链接文字') || '链接文字');
+        return wrap('[', '](' + url + ')', text);
+      }
+      case 'image': {
+        const url = prompt('请输入图片地址（外链 URL 或 /img/xxx.jpg）：', 'https://');
+        if (!url) return;
+        const alt = (prompt('图片描述（alt，可留空）：', '') || '');
+        const { s, e, val } = getSel();
+        const needNl = (val.slice(0, s) && !val.slice(0, s).endsWith('\n')) ? '\n' : '';
+        const ins = needNl + '![' + alt + '](' + url + ')\n';
+        const newVal = val.slice(0, s) + ins + val.slice(e);
+        return setVal(newVal, s + ins.length, s + ins.length);
+      }
+    }
+  }
+  function bindToolbar() {
+    document.querySelectorAll('#toolbar .tb').forEach(b => {
+      b.addEventListener('mousedown', e => e.preventDefault()); // 点按钮时不丢失选区
+      b.addEventListener('click', () => applyCmd(b.dataset.cmd));
+    });
+  }
+
   // ---------- 事件绑定 ----------
   function bind() {
+    bindToolbar();
     $('btn-login').addEventListener('click', login);
     $('btn-logout').addEventListener('click', logout);
     $('btn-new').addEventListener('click', newPost);
@@ -367,6 +473,8 @@
     bodyEl.addEventListener('input', () => { updateGutter(); schedulePreview(); markDirty(); });
     bodyEl.addEventListener('scroll', () => { gutter.scrollTop = bodyEl.scrollTop; });
     bodyEl.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') { e.preventDefault(); applyCmd('bold'); return; }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'i') { e.preventDefault(); applyCmd('italic'); return; }
       if (e.key === 'Tab') {
         e.preventDefault();
         const s = bodyEl.selectionStart, en = bodyEl.selectionEnd;
