@@ -20,7 +20,8 @@
 │   ├── auth.js                       # GET /auth         —— 弹窗握手页
 │   ├── auth/callback.js             # GET /auth/callback —— 换 token 并回传
 │   ├── api/v3/[[path]].js          # /api/v3/*      —— GitHub API 反代
-│   └── archives/[[path]].js        # /archives/*    —— 大写字母 URL 301 转小写（见「坑 7」）
+│   ├── archives/[[path]].js        # /archives/*    —— 大写字母 URL 301 转小写（见「坑 7」）
+│   └── bing-image.js               # /bing-image   —— 侧边栏 Bing 每日一图（见「坑 9」）
 ├── scripts/
 │   ├── migrate_comments_to_giscus.py   # 旧 Typecho 评论 → Giscus Discussions
 │   └── typecho_to_hugo.py             # SQL 解析工具（被上面引用）
@@ -157,6 +158,50 @@ GitHub → 头像 → Settings → **Developer settings** → **OAuth Apps** →
   ```
   - 验证：`curl -I https://inurl.top/archives/Disney/` → 301 且 `Location: /archives/disney/`；小写页、`/`、`/auth` 均不被误伤（200 / 正常）。
   - 治本建议：写文时尽量用 Hugo 的 `relref` / `ref` 短码生成站内链接，让 Hugo 统一管理大小写，避免手写大写路径。
+
+### 坑 8：`overflow-x: hidden` 加在 `body` 上 → 右侧多一条竖拉条 + 回顶部失效
+- **现象**：为了消掉首页底部横拉条，曾写 `html, body { overflow-x: hidden }`。结果：① 网站右侧多出一条竖拉条；② 页面右下角的「回顶部」按钮（`main.js` 里靠 `window.pageYOffset` 判断显隐、`window.scrollTo` 回顶）彻底失灵。
+- **原因**：`body` 一旦设了 `overflow-x: hidden` 会变成**独立的滚动容器**——
+  - 它自身尺寸按内容撑开，于是右侧出现一条属于 body 的竖拉条；
+  - 同时切断了 `window` 滚动，依赖 `window.scrollY` 的返回顶部逻辑收不到事件 → 按钮不显示、点击也无效。
+  - （原站的「拉到底部出现上箭头、点一下回顶部」功能其实一直都在：`footer.html` 的 `.return-top` + `.tri`，滚动超 200px 浮现；只是被 `body` 的规则连累了。）
+- **解决**：只保留 `html { overflow-x: hidden; }`，**把 body 上的规则删掉**。这样横拉条照样被裁掉，`window` 滚动恢复，回顶部按钮也回来了。
+  - 经验：横向溢出裁剪一律只放 `html`（或 `overflow-x: clip`）；`body` 上动 `overflow` 多半会造出第二条滚动条。
+
+### 坑 9：侧边栏接入微软 Bing 每日一图（Cloudflare Pages Function）
+- **需求**：原站右侧栏「主页 / GitHub / QQ」上方的 `info-header` 背景是微软 Bing 每日一图，每天自动变。克隆站也想实现。
+- **实现**：新增 `functions/bing-image.js`（路由 `/bing-image`）——
+  - 服务端 `fetch` 拉取 `https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN`，取出当日大图；
+  - 把原图 `1920x1080` 的地址字符串 `replace` 成 `1366x768`，**302 跳转到 Bing CDN 真图**——浏览器跟随重定向直接从 Bing 加载，**不占用本站带宽**；
+  - 带 `Cache-Control: public, max-age=21600`（6 小时），所以每天至少自动刷新一次，对齐「每日一图」；
+  - `try/catch` 兜底：Bing 接口不可用时，跳到一张写死的 `FALLBACK` 兜底图。
+  - ⚠️ 沙箱/线上若访问 `bing.com` 超时，函数会走兜底图，属正常降级，不是 bug。
+- **接入**：`layouts/partials/sidebar.html` 里 `info-header` 的背景从 `/img/about.jpg` 改成 `url(/bing-image)`（`.info-header` 自带 `background-size: cover`，图会铺满）。
+- **验证**：浏览器开 `https://inurl.top/bing-image` 会被 302 跳到 `bing.com/th?id=...` 的图片；右侧栏顶部即当天美图，每天自动换。
+
+### 坑 10：hero 标题 `background-clip: text` 放在带 `transform` 子级的父级 → 整行透明不可见
+- **现象**：重写的「代码如诗·字字珠玑」9 个字 `<span>` 都在 HTML 里，但整行透明、肉眼看不见。
+- **原因**：曾把「渐变 + `background-clip: text` + `-webkit-text-fill-color: transparent`」放在**父级 `.hero-title`** 上；
+  可子 `<span class="ch">` 带了入场动画的 `transform / opacity`，会**各自形成独立图层**，父级的 `clip` 裁剪不到子级文字 → 文字透明不可见。
+- **解决**：把渐变和 `background-clip: text` 移到**每个 `.ch` 自己身上**，父级只留 `filter` 光晕；后面改白色发光字时，`.ch` 直接 `color: #fff; -webkit-text-fill-color: #fff;` 即可（无需 clip）。
+  - 经验：**凡是用 `background-clip:text` 做文字渐变/特效，clip 必须放在最终承载文字的那个元素上**，绝不能隔着带 transform 的子层。
+
+### 坑 11：hero 标题在宽屏下不居中（`position: absolute` + `width: 100%` + `left: auto`）
+- **现象**：标题整行偏右，宽屏下看着明显不居中。
+- **原因**：`.page-title` 是 `position: absolute`，`width: 100%` 解析到**整屏宽**，但没设 `left/right` → `left: auto` 落到**居中 `.container`（1000px 卡片）的静态左缘**。
+  于是「盒子宽 = 整屏宽，左缘却偏到 1000px 卡片的左缘」，宽屏下整行被带向右。
+- **解决**：给 `.hero-title` 显式锚定到视口并 flex 居中——
+  `left: 0; right: 0; display: flex; justify-content: center;`（双保险，`left/right:0` + `text-align:center` 都已具备，flex 兜底）。
+
+### 坑 12：首页背景图在大屏幕上看不到代码（`cover` + `about.jpg` 裁剪）
+- **现象**：大屏幕下 hero 背景里的代码看不见，只有**缩小浏览器窗口**才露出来；缩到很窄之后才看到代码。
+- **原因**：首页 `.page-bg.about-bg` 用的是 `static/img/about.jpg`（一张 MacBook 照片：上半是代码屏、**下半是键盘**）。
+  `.page-bg` 高固定 `400px`、宽 `100vw`、`background-size: cover`、默认 `background-position: 0 0`（左上角）。
+  - 宽屏下 `cover` 按**宽度**放大照片，只能看到照片**顶部一条窄带**，而 about.jpg 顶部刚好是暗角/少量代码，键盘被压在下面 → 代码几乎看不见；
+  - 缩小窗口后 `cover` 切换成按**高度**约束，露出更多竖向区域，代码才出现。
+- **解决**：把首页 header 的 class 从 `about-bg` 换成 `code-bg`，新增规则改用 `static/img/bg.jpg`（一张**纯代码屏**图，没有键盘干扰），并 `background-position: center`。
+  `bg.jpg` 整屏都是代码，配合居中裁剪，**任意宽度都能露出代码**；另加暗色兜底 `background-color: #1a1a2e`（图片加载前不会是灰底）。
+  - 经验：hero 背景若用 `cover` + 固定矮高，选「主体铺满整图」的图片（如纯代码屏），比「局部有内容」的照片（如带键盘的笔记本）鲁棒得多。
 
 ---
 
