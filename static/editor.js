@@ -184,36 +184,62 @@
   }
 
   // ---------- Front matter ----------
+  // 轻量 YAML front matter 解析（支持：标量 / 内联数组 / 块列表 / 块标量）
   function parseFM(raw) {
     const m = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/);
     if (!m) return { fm: {}, body: raw };
     const fmText = m[1];
     const body = raw.slice(m[0].length);
     const fm = {};
-    fmText.split(/\r?\n/).forEach((line) => {
-      const mm = line.match(/^([\w-]+):\s*(.*)$/);
-      if (!mm) return;
-      let key = mm[1], val = mm[2].trim();
-      if (val.startsWith('[') && val.endsWith(']')) {
-        val = val.slice(1, -1).split(',').map(s => s.trim().replace(/^["']|["']$/g, '')).filter(Boolean);
-      } else {
-        val = val.replace(/^["']|["']$/g, '');
+    const lines = fmText.split(/\r?\n/);
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const mm = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
+      if (!mm) continue;                       // 缩进行 / 注释，跳过
+      const key = mm[1];
+      const val = mm[2].trim();
+      // 块标量：description: |-  或  key: >
+      if (/^[|>]-?$/.test(val)) {
+        const start = i; i++;
+        while (i < lines.length && /^[\t ]+/.test(lines[i])) i++;
+        i--;
+        fm[key] = { __block: true, text: lines.slice(start, i + 1).join('\n') };
+        continue;
       }
-      fm[key] = val;
-    });
+      // 空值：可能是块列表（tags: / categories: 换行的写法）
+      if (val === '') {
+        const items = [];
+        let j = i + 1;
+        while (j < lines.length && /^[\t ]*-[\t ]+/.test(lines[j])) {
+          items.push(lines[j].replace(/^[\t ]*-[\t ]+/, '').trim().replace(/^["']|["']$/g, ''));
+          j++;
+        }
+        if (items.length) { fm[key] = items; i = j - 1; continue; }
+        fm[key] = '';
+        continue;
+      }
+      // 内联数组 [a, b]
+      if (val.startsWith('[') && val.endsWith(']')) {
+        fm[key] = val.slice(1, -1).split(',').map(s => s.trim().replace(/^["']|["']$/g, '')).filter(Boolean);
+        continue;
+      }
+      // 普通标量
+      fm[key] = val.replace(/^["']|["']$/g, '');
+    }
     return { fm, body };
   }
 
   function serializeFM(fm, body) {
     const lines = ['---'];
     for (const k of Object.keys(fm)) {
-      let v = fm[k];
+      const v = fm[k];
+      if (v && typeof v === 'object' && v.__block) { lines.push(v.text); continue; } // 块标量原样写回
       if (Array.isArray(v)) {
         lines.push(k + ': [' + v.map(s => '"' + String(s).replace(/"/g, '\\"') + '"').join(', ') + ']');
       } else {
-        v = String(v);
-        const needQuote = /[:#\[\]{}"']/.test(v) || v === '';
-        lines.push(k + ': ' + (needQuote ? '"' + v.replace(/"/g, '\\"') + '"' : v));
+        const sv = String(v);
+        const needQuote = /[:#\[\]{}"']/.test(sv) || sv === '';
+        lines.push(k + ': ' + (needQuote ? '"' + sv.replace(/"/g, '\\"') + '"' : sv));
       }
     }
     lines.push('---');

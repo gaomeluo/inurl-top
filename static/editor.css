@@ -240,7 +240,8 @@ body {
   padding: 16px; border: 0; resize: none;
   background: var(--bg-2); color: var(--text);
   font-family: var(--mono); font-size: 14px; line-height: 1.7;
-  white-space: pre; overflow: auto; outline: none; tab-size: 2;
+  white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word;
+  overflow-y: auto; overflow-x: hidden; outline: none; tab-size: 2;
   caret-color: var(--accent);
 }
 #body::placeholder { color: var(--text-muted); }
