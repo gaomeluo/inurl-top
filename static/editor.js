@@ -370,30 +370,72 @@
   }
 
   // ---------- 增 / 删 / 改 ----------
+  // 把 slug 框里的展示值归一化为真正的磁盘路径（永远落 content/posts/，
+  // 站点 permalinks 配置会把 /posts/:slug/ 重写为 /archives/:slug/）。
+  function targetPath() {
+    let v = fSlug.value.trim().replace(/^\/+|\.md$/g, '');
+    v = v.replace(/^(archives|posts|content)\//i, '');
+    if (!v) v = autoSlug(fTitle.value) || ('untitled-' + Date.now());
+    return 'content/posts/' + v + '.md';
+  }
+
   async function savePost(publish) {
     if (!current) return;
-    if (current.isNew && !fSlug.value.trim()) { toast('请填写发布路径 / Slug', 'err'); return; }
+    if (!fSlug.value.trim() && current.isNew) { toast('请填写发布路径 / Slug', 'err'); return; }
     const fm = collectFM(publish);
     const raw = serializeFM(fm, bodyEl.value);
-    const path = current.isNew ? currentPath() : current.path;
+    const target = targetPath();
+    const isNew = current.isNew;
+    const isRename = !isNew && target !== current.path;
     setSaving(true);
     try {
-      const payload = { message: (current.isNew ? 'create ' : (publish ? 'publish ' : 'draft ')) + path, content: b64encode(raw) };
-      if (!current.isNew && current.sha) payload.sha = current.sha;
-      await gh('contents/' + path, { method: 'PUT', body: payload });
-      current.path = path;
+      let actionLabel;
+      if (isRename) {
+        // 改名：先 PUT 新路径（无 sha = 创建），再 DELETE 旧路径
+        // GitHub Contents API 不支持原地改名，必须两步走；这两步会生成两次 commit。
+        const createPayload = {
+          message: 'rename: ' + current.path + ' → ' + target,
+          content: b64encode(raw),
+        };
+        const newRes = await gh('contents/' + target, { method: 'PUT', body: createPayload });
+        await gh('contents/' + current.path, {
+          method: 'DELETE',
+          body: { message: 'rename to ' + target, sha: current.sha },
+        });
+        current.path = target;
+        current.sha = newRes.content.sha;
+        actionLabel = '已重命名并保存';
+      } else {
+        // 新建或原地更新
+        const payload = {
+          message: (isNew ? 'create ' : (publish ? 'publish ' : 'draft ')) + target,
+          content: b64encode(raw),
+        };
+        if (!isNew && current.sha) payload.sha = current.sha;
+        const res = await gh('contents/' + target, { method: 'PUT', body: payload });
+        current.path = target;
+        if (!isNew) current.sha = res.content.sha;
+        actionLabel = publish ? '已发布' : '已存为草稿';
+      }
       current.fm = fm;
       current.isNew = false;
       current.dirty = false;
-      fSlug.readOnly = false;   // 已发布文章也保持可编辑
-      fSlug.value = (fm.slug ? 'archives/' + fm.slug : displaySlug(path));
+      fSlug.readOnly = false;
+      fSlug.value = (fm.slug ? 'archives/' + fm.slug : displaySlug(target));
       setStatus('saved');
-      toast(publish ? '已发布，部署中…' : '已存为草稿，部署中…', 'ok');
-      const item = allPosts.find(p => p.path === path);
-      if (item) { item.title = fm.title || prettyName(path); item.date = fm.date || ''; item.slug = fm.slug || ''; }
-      else allPosts.push({ path, name: path.split('/').pop(), title: fm.title || prettyName(path), date: fm.date || '', slug: fm.slug || '' });
+      toast(actionLabel + '，部署中…', 'ok');
+      const item = allPosts.find(p => p.path === current.path);
+      if (item) {
+        item.title = fm.title || prettyName(current.path);
+        item.date = fm.date || '';
+        item.slug = fm.slug || '';
+        // 旧路径不在列表里了（如果是改名），同步移除
+        const oldItem = allPosts.find(p => p.path === target && p !== item);
+        if (oldItem) { /* no-op */ }
+      } else {
+        allPosts.push({ path: current.path, name: current.path.split('/').pop(), title: fm.title || prettyName(current.path), date: fm.date || '', slug: fm.slug || '' });
+      }
       renderList(searchInput.value);
-      try { const d = await gh('contents/' + path); current.sha = d.sha; } catch (_) {}
     } catch (err) {
       toast(err.message || '保存失败', 'err');
     } finally {

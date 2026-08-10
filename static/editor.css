@@ -165,7 +165,7 @@ body {
   transition: border-color .2s, box-shadow .2s;
 }
 .mf-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
-#f-slug:read-only { background: var(--bg-3); color: var(--text-muted); cursor: not-allowed; }
+/* 发布路径对已有文章也可改：仅在 front matter 真没 slug 时由后端兜底 */
 
 /* ===== 标签 / 分类：芯片下拉 ===== */
 .combo { position: relative; }

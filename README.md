@@ -203,6 +203,35 @@
 - **注意**：原 Decap 自托管 OAuth 的坑 1–6 本质是「Cloudflare 自托管 OAuth」的通用坑，
   自研后台**同样适用**（登录机制完全一致），排查时仍按坑 1–6 对照；只是不再有 Decap 版本差异问题。
 
+### 坑 14：编辑器改了发布路径，保存后 URL 没变（slug 框"假可改"）
+- **症状**：打开已有文章，把「发布路径」里的 slug 改成别的（例如 `apitoken` → `apitoken-v2`），点保存后没有任何错误提示，
+  但 `archives/apitoken/` 还是老的，磁盘上的 `content/posts/apitoken.md` 也纹丝不动，新 slug 没生效。
+- **根因（两处叠加）**：
+  1. `static/editor.html` 里 `<input id="f-slug" ... readonly>`，加上 CSS `#f-slug:read-only { cursor: not-allowed; ... }`——
+     字段外观上看着像锁住了（灰底+not-allowed 光标）。运行期 JS 用 `fSlug.readOnly = false` 强行解锁了，
+     但**用户视觉上会以为改不动就放弃**。
+  2. `savePost()` 里写的是：
+     ```js
+     const path = current.isNew ? currentPath() : current.path;  // ← 已有文章永远走旧路径
+     ```
+     即使你在框里改了 slug，保存时 PUT 用的还是磁盘上**原始**的 `current.path`，文件根本没移动。
+- **修法**（本仓库当前实现，已提交 c19a2fa 之后的版本）：
+  1. 去掉 HTML 上的 `readonly` 属性，删掉 CSS `#f-slug:read-only` 视觉锁 —— **外观与行为保持一致**，别再骗用户。
+  2. 新增 `targetPath()`：从 slug 框读值，归一化为 `content/posts/<slug>.md`（permalink 会映射成 `/archives/`）。
+  3. `savePost()` 区分三种动作：
+     - **新建** → `PUT contents/content/posts/<slug>.md`（无 sha）。
+     - **原地更新** → 同上但带 `sha`（覆盖）。
+     - **改名**（`target !== current.path`）→ 先 PUT 新路径（无 sha = 创建），再 DELETE 旧路径。
+       GitHub Contents API **不支持原地改名**，必须两步走，会产生两次 commit（rename + delete old）。
+  4. `current.path / sha` 保存后即时刷新，列表里同步更新文件路径。
+- **副作用与注意**：
+  - 改 slug = 改 URL，原 `/archives/old-slug/` 链接立即 404。要保链接就**别改 slug**，要 SEO 友好的 URL 就在 Cloudflare Pages Functions 的
+    `functions/archives/[[path]].js` 里加 301 重定向（旧 slug → 新 slug），或者用编辑器自带的"老路径保留"功能（未实现）。
+  - 改 slug 后 Hugo 也会按新路径重新生成静态页，Cloudflare 自动重部署生效。
+  - GitHub 同名文件存在时会报 422（`Invalid request`），提示里有 `sha` 字段；此时 `savePost` 会落到 `catch` 弹错，按提示刷新即可。
+- **教训**：UI 控件状态与 HTML 属性要**单一来源**，要么 JS 完全控制（别在 HTML 上写 `readonly`），要么 HTML 静态决定。
+  "看起来锁住但实际能改"是最坑的——用户要么放弃，要么改完发现没生效怒而回退。
+
 ---
 
 ## 其他运维命令
