@@ -1,0 +1,22 @@
+# Cloudflare Pages 自定义响应头
+# 文档：https://developers.cloudflare.com/pages/configuration/headers/
+#
+# 规则：自研文章后台永远不要缓存（避免改完代码用户看不到，必须强制刷新）。
+#      其他静态资源用默认缓存即可（Hugo 构建产物通常有内容哈希）。
+#      /api/v3/* /auth/* 已经在 functions/ 里各自设置响应头，不在此重复。
+
+# 编辑器整套：HTML + 它的 CSS / JS 都必须实时拿最新版本
+/editor.html
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Expires: 0
+
+/editor.css
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/editor.js
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# 给所有静态资源一个保守但合理的默认缓存（兜底）
+/*
+  Cache-Control: public, max-age=300
