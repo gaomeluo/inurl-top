@@ -33,6 +33,7 @@
 
   let current = null;     // { path, sha, fm, body, dirty, isNew }
   let allPosts = [];
+  let slugDirty = false;  // 用户是否手动改过 slug（true=停止跟随标题自动更新）
 
   // 分类 / 标签：中文显示 -> 存储 slug（Hugo 需要 slug）
   let catMap = {};   // { slug: 中文名 }
@@ -52,6 +53,21 @@
   function b64encode(str) { return btoa(unescape(encodeURIComponent(str))); }
   function b64decode(b64) { return decodeURIComponent(escape(atob(b64.replace(/\s/g, '')))); }
   function escapeHtml(s) { return s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])); }
+
+  // Slug generation: strip Chinese/fullwidth punctuation, leave ASCII letters/digits/hyphens.
+  // Example: "【教程】如何0成本使用聚合API Token管理你所有key" -> "0-api-token"
+  function slugify(title) {
+    if (!title) return '';
+    let s = title
+      .replace(/[\u3000-\u303f\uff00-\uffef]/g, ' ')
+      .replace(/[\u4e00-\u9fff]/g, ' ')
+      .toLowerCase()
+      .replace(/[^a-z0-9\s_-]/g, ' ')
+      .replace(/[\s_-]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    return s.slice(0, 60);
+  }
+  function autoSlug(title) { return slugify(title) || ('post-' + Date.now().toString(36)); }
 
   // ---------- Auth（复用 /auth 握手） ----------
   function getToken() { return localStorage.getItem(TOKEN_KEY); }
@@ -271,6 +287,7 @@
     fTitle.value = fm.title || '';
     fSlug.value = displaySlug(current && current.path || '');
     fSlug.readOnly = !current.isNew;
+    slugDirty = !current.isNew;  // 已有文章 slug 锁定，不自动改
     fTags.value = Array.isArray(fm.tags) ? fm.tags.join(', ') : (fm.tags || '');
     fCats.value = Array.isArray(fm.categories) ? fm.categories.join(', ') : (fm.categories || '');
     renderChips('tags'); renderChips('cats');
@@ -386,8 +403,10 @@
   function newPost() {
     current = { path: null, sha: null, fm: {}, body: '', dirty: false, isNew: true };
     fTitle.value = '';
-    fSlug.value = 'archives/untitled-' + Date.now().toString().slice(-6);
+    slugDirty = false;                       // 新文章：让 slug 跟随标题自动生成
+    fSlug.value = 'archives/' + autoSlug(''); // 标题为空时给一个回退值
     fSlug.readOnly = false;
+    fSlug.placeholder = 'archives/your-slug（按标题自动生成，可手动改）';
     fTags.value = ''; fCats.value = ''; fCover.value = '';
     renderChips('tags'); renderChips('cats');
     fDate.value = new Date().toISOString().slice(0, 10);
@@ -671,6 +690,15 @@
     searchInput.addEventListener('input', () => renderList(searchInput.value));
     bodyEl.addEventListener('input', () => { updateGutter(); schedulePreview(); markDirty(); });
     bodyEl.addEventListener('scroll', () => { gutter.scrollTop = bodyEl.scrollTop; });
+
+    // 标题输入时自动同步 slug（新文章、未被手动改过时）
+    fTitle.addEventListener('input', () => {
+      if (current && current.isNew && !slugDirty) {
+        fSlug.value = 'archives/' + autoSlug(fTitle.value);
+      }
+    });
+    // 用户手动改 slug → 停止自动跟随
+    fSlug.addEventListener('input', () => { slugDirty = true; });
     bodyEl.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') { e.preventDefault(); applyCmd('bold'); return; }
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'i') { e.preventDefault(); applyCmd('italic'); return; }
