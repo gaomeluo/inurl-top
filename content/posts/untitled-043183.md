@@ -1,6 +1,7 @@
 ---
-title: 无标题
+title: 【教程】如何0成本使用聚合API Token管理你所有key
 date: 2026-08-10
+categories: ["yuanquan"]
 ---
 
 虽然很多厂子都有免费Token，但是都有额度的，不可能无限量的供应，要么每日限、每月限、要么是注册赠送多少。
