@@ -1,5 +1,6 @@
 ---
 title: 【教程】如何0成本使用聚合API Token管理你所有key
+slug: apitoken
 categories: ["yuanquan"]
 date: 2026-08-10
 ---

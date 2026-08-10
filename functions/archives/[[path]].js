@@ -10,6 +10,14 @@ export function onRequest(context) {
   const url = new URL(request.url);
   const path = url.pathname;
 
+  // 旧版中文 slug 长网址 → 重定向到干净的 /archives/apitoken/
+  // （该文发布路径已改为 apitoken，旧长链避免 404）
+  const decoded = decodeURIComponent(path);
+  if (decoded === '/archives/教程如何0成本使用聚合api-token管理你所有key/') {
+    url.pathname = '/archives/apitoken/';
+    return Response.redirect(url.toString(), 301);
+  }
+
   // 仅当路径含大写字母时才重定向，避免无谓跳转
   if (/[A-Z]/.test(path)) {
     url.pathname = path.toLowerCase();

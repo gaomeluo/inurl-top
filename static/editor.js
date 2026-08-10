@@ -167,6 +167,7 @@
             const raw = b64decode(d.content);
             const fm = parseFM(raw).fm;
             p.title = (fm.title && String(fm.title)) || prettyName(p.name);
+            p.slug = (fm.slug ? String(fm.slug) : '');
             p.date = fm.date || '';
             p.cats = Array.isArray(fm.categories) ? fm.categories : (fm.categories ? [fm.categories] : []);
             p.tags = Array.isArray(fm.tags) ? fm.tags : (fm.tags ? [fm.tags] : []);
@@ -198,7 +199,7 @@
       li.className = 'post-item' + (current && current.path === p.path ? ' active' : '');
       li.innerHTML = '<div class="post-name"></div><div class="post-meta"></div>';
       li.querySelector('.post-name').textContent = p.title;
-      li.querySelector('.post-meta').textContent = displaySlug(p.path);
+      li.querySelector('.post-meta').textContent = p.slug ? 'archives/' + p.slug : displaySlug(p.path);
       li.addEventListener('click', () => openPost(p));
       postList.appendChild(li);
     }
@@ -285,9 +286,10 @@
 
   function fillForm(fm, body) {
     fTitle.value = fm.title || '';
-    fSlug.value = displaySlug(current && current.path || '');
-    fSlug.readOnly = !current.isNew;
-    slugDirty = !current.isNew;  // 已有文章 slug 锁定，不自动改
+    // 显示真实发布路径：优先用 front matter 里的 slug，否则用文件名派生
+    fSlug.value = (fm.slug ? 'archives/' + fm.slug : displaySlug(current && current.path || ''));
+    fSlug.readOnly = false;   // 已发布文章也允许修改发布路径
+    slugDirty = true;         // 已有文章：不跟随标题自动改 slug
     fTags.value = Array.isArray(fm.tags) ? fm.tags.join(', ') : (fm.tags || '');
     fCats.value = Array.isArray(fm.categories) ? fm.categories.join(', ') : (fm.categories || '');
     renderChips('tags'); renderChips('cats');
@@ -301,6 +303,10 @@
   function collectFM(publish) {
     const fm = Object.assign({}, (current && current.fm) || {});
     fm.title = fTitle.value.trim() || '无标题';
+    // 发布路径 / slug：从 slug 框取值写入 front matter。
+    // 已有文章改 slug 即改 URL（无需改文件名，安全）；新文章文件名也由它派生。
+    const slugVal = fSlug.value.trim().replace(/^\/+|\.md$/g, '').replace(/^(archives|posts|content)\//i, '');
+    if (slugVal) fm.slug = slugVal; else delete fm.slug;
     const tags = fTags.value.split(',').map(s => s.trim()).filter(Boolean);
     if (tags.length) fm.tags = tags; else delete fm.tags;
     const cats = fCats.value.split(',').map(s => s.trim()).filter(Boolean);
@@ -379,13 +385,13 @@
       current.fm = fm;
       current.isNew = false;
       current.dirty = false;
-      fSlug.readOnly = true;
-      fSlug.value = displaySlug(path);
+      fSlug.readOnly = false;   // 已发布文章也保持可编辑
+      fSlug.value = (fm.slug ? 'archives/' + fm.slug : displaySlug(path));
       setStatus('saved');
       toast(publish ? '已发布，部署中…' : '已存为草稿，部署中…', 'ok');
       const item = allPosts.find(p => p.path === path);
-      if (item) { item.title = fm.title || prettyName(path); item.date = fm.date || ''; }
-      else allPosts.push({ path, name: path.split('/').pop(), title: fm.title || prettyName(path), date: fm.date || '' });
+      if (item) { item.title = fm.title || prettyName(path); item.date = fm.date || ''; item.slug = fm.slug || ''; }
+      else allPosts.push({ path, name: path.split('/').pop(), title: fm.title || prettyName(path), date: fm.date || '', slug: fm.slug || '' });
       renderList(searchInput.value);
       try { const d = await gh('contents/' + path); current.sha = d.sha; } catch (_) {}
     } catch (err) {
