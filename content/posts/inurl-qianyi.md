@@ -10,7 +10,7 @@ categories: ["yuanquan"]
 ![](https://img.inurl.link/i/65a94445-c027-49b1-8d28-8c67cfe17848)
 如图，你现在看到的这个网站就是我之前网站的样子，还原度99.8%。
 
-### 网址：https://inurl.top/
+### 网址：[https://inurl.top/](https://inurl.top/)
 
 ## 我为什么要迁移网站？
 
@@ -20,7 +20,7 @@ categories: ["yuanquan"]
 
 以上是消费账单。
 之所以选[vultr](https://inurl.link/vultr)服务器，是因为这个服务器在海外还是非常出名的，价格不贵，还能更换公网IP。
-（如果你需要海外服务器，不妨PING一下他的节点，看看速度咋样，传送门：https://ping.inurl.link/vultr/）
+（如果你需要海外服务器，不妨PING一下他的节点，看看速度咋样，**传送门：h[ttps://ping.inurl.link/vultr/](ttps://ping.inurl.link/vultr/)**）
 
 很大一部分原因是为了开源节流，我才决定把网站迁到cloudcflare上。
 
