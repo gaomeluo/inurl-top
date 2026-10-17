@@ -6,6 +6,7 @@ categories: ["yuanquan"]
 date: 2026-10-14
 ---
 
+
 书接上文，上一篇文章我写了【[SSL续签工具---如何解析DNS？](https://inurl.top/archives/jiexidns/)】。
 
 接下来教大家如何部署SSL证书。
@@ -28,11 +29,11 @@ date: 2026-10-14
 
 因为每个用户服务器的环境不一样，接下来，我将以3个稍微有代表性的环境按照证书为例。
 
-#### 1、nginx环境安装SSL证书
+#### 1、[nginx环境安装SSL证书](https://inurl.top/archives/nginx-ssl/)
 
-#### 2、IIS环境安装SSL证书
+#### 2、[IIS环境安装SSL证书](https://inurl.top/archives/iis-ssl/)
 
-#### 3、宝塔环境安装SSL证书
+#### 3、[宝塔环境安装SSL证书](https://inurl.top/archives/baota-ssl/)
 
 
 
