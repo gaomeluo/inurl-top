@@ -6,7 +6,7 @@
       <ul class="post-meta">
         <li>时间: <time datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date.Format "2006-01-02 15:04" }}</time></li>
         {{ with .GetTerms "categories" }}<li>分类: {{ range . }}<a href="{{ .RelPermalink }}">{{ .Title }}</a> {{ end }}</li>{{ end }}
-        <li>阅读量: <span id="busuanzi_value_page_pv" data-base="{{ .Params.views | default 0 }}">{{ .Params.views | default "—" }}</span></li>
+        <li>阅读量: <span id="post-views" data-base="{{ .Params.views | default 0 }}">{{ .Params.views | default 0 }}</span></li>
         <li><a href="#comments">评论</a></li>
       </ul>
       <div class="post-content">{{ .Content }}</div>
@@ -36,4 +36,31 @@
   </div>
   {{ partial "sidebar.html" . }}
 </div>
+{{ end }}
+
+{{ define "scripts" }}
+<script>
+// 首方阅读量计数器：每次真实访问 +1（同一会话内刷新不重复计数），并显示最新总数。
+// 初始显示模板里的历史 views（真实迁移值）；接口异常时保留该值，永不显示「—」。
+(function () {
+  var el = document.getElementById('post-views');
+  if (!el) return;
+  var path = location.pathname;
+  var flag = 'viewed_' + path;
+
+  function apply(d) {
+    if (d && typeof d.views === 'number' && !isNaN(d.views)) el.textContent = d.views;
+  }
+
+  if (sessionStorage.getItem(flag)) {
+    // 同会话已计过数：仅拉取最新值，不再 +1
+    fetch('/api/views?path=' + encodeURIComponent(path))
+      .then(function (r) { return r.json(); }).then(apply).catch(function () {});
+    return;
+  }
+  sessionStorage.setItem(flag, '1');
+  fetch('/api/views?path=' + encodeURIComponent(path), { method: 'POST' })
+    .then(function (r) { return r.json(); }).then(apply).catch(function () {});
+})();
+</script>
 {{ end }}
