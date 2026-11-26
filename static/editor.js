@@ -108,7 +108,10 @@
       const r = await gh('user');
       userEl.textContent = r.login ? '@' + r.login : '(已登录)';
     } catch (_) { userEl.textContent = '(已登录)'; }
-    try { await loadPosts(); await gatherTaxonomies(); }
+    try {
+      const fromIndex = await loadPosts();
+      if (!fromIndex) await gatherTaxonomies();
+    }
     catch (err) {
       if (!getToken()) { location.reload(); return; }
       toast(err.message || '加载失败', 'err');
@@ -155,10 +158,34 @@
 
   function prettyName(name) { return name.replace(/\.md$/i, '').replace(/[-_]/g, ' '); }
 
+  // 构建时生成的轻量索引：一次请求拿到所有文章的标题/日期/分类/标签，
+  // 不再为每篇文章单独请求 GitHub Contents API（原来 134 篇要 134 次请求）。
+  async function loadIndex() {
+    try {
+      const r = await fetch('/editor-index.json?t=' + Date.now(), { cache: 'no-store' });
+      if (!r.ok) return null;
+      const d = await r.json();
+      return d && Array.isArray(d.posts) ? d : null;
+    } catch (_) { return null; }
+  }
+
   async function loadPosts() {
     listLoading.classList.remove('hidden');
     postList.innerHTML = '';
     try {
+      const idx = await loadIndex();
+      if (idx) {
+        allPosts = idx.posts.map(p => Object.assign({}, p, {
+          cats: Array.isArray(p.categories) ? p.categories : (p.categories ? [p.categories] : []),
+          tags: Array.isArray(p.tags) ? p.tags : (p.tags ? [p.tags] : []),
+        }));
+        catMap = idx.categories || {};
+        tagMap = idx.tags || {};
+        allPosts.sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+        renderList();
+        return true;
+      }
+      // 兜底：索引不可用时仍走 GitHub API（保持与旧版一致）
       allPosts = await walkDir(CONTENT_DIR);
       await Promise.all(allPosts.map(async (p) => {
         try {
@@ -176,8 +203,10 @@
       }));
       allPosts.sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
       renderList();
+      return false;
     } catch (err) {
       toast(err.message || '加载失败', 'err');
+      return false;
     } finally {
       listLoading.classList.add('hidden');
     }
