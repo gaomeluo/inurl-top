@@ -162,7 +162,7 @@
   // 不再为每篇文章单独请求 GitHub Contents API（原来 134 篇要 134 次请求）。
   async function loadIndex() {
     try {
-      const r = await fetch('/editor-index.json?t=' + Date.now(), { cache: 'no-store' });
+      const r = await fetch('/editor-index.json', { cache: 'reload' });
       if (!r.ok) return null;
       const d = await r.json();
       return d && Array.isArray(d.posts) ? d : null;
